@@ -5,6 +5,7 @@ class TransactionModel {
   final String category;
   final String type;
   final String timestamp;
+  final String note;
 
   TransactionModel({
     this.id,
@@ -13,27 +14,31 @@ class TransactionModel {
     required this.category,
     required this.type,
     required this.timestamp,
+    this.note = '',
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = <String, dynamic>{
       'amount': amount,
       'merchant': merchant,
       'category': category,
       'type': type,
       'timestamp': timestamp,
+      'note': note,
     };
+    if (id != null) map['id'] = id;
+    return map;
   }
 
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
-      id: map['id'],
-      amount: map['amount'],
-      merchant: map['merchant'],
-      category: map['category'],
-      type: map['type'],
-      timestamp: map['timestamp'],
+      id: map['id'] as int?,
+      amount: (map['amount'] as num).toDouble(),
+      merchant: map['merchant'] as String,
+      category: map['category'] as String,
+      type: map['type'] as String,
+      timestamp: map['timestamp'] as String,
+      note: (map['note'] as String?) ?? '',
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../database/database_helper.dart';
+import '../local/database_helper.dart';
+import '../models/transaction_model.dart';
 
 class SMSService {
   static const platform = MethodChannel('sms_channel');
@@ -32,14 +33,13 @@ class SMSService {
 
             String category = detectCategory(merchant, body, type);
 
-            await DatabaseHelper.instance.insertTransaction({
-              'sms_id': smsId,
-              'amount': amount,
-              'merchant': merchant,
-              'category': category,
-              'type': type,
-              'timestamp': date.toString(),
-            });
+            await DatabaseHelper.instance.insertTransaction(TransactionModel(
+              amount: type == 'Credit' ? amount : -amount,
+              merchant: merchant,
+              category: category,
+              type: type == 'Credit' ? 'income' : 'expense',
+              timestamp: date.toIso8601String(),
+            ));
           }
         }
       }

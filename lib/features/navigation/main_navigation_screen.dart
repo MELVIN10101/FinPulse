@@ -24,13 +24,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     _currentIndex = widget.initialIndex;
   }
 
-  static const List<Widget> _screens = [
-    DashboardScreen(),
-    HistoryShellScreen(),
-    InsightsScreen(),
-    GoalsScreen(),
-    ProfileScreen(),
+  // Use a fixed list of widgets, NOT a getter
+  final List<Widget> _screens = [
+    const DashboardScreen(),
+    const HistoryShellScreen(),
+    const InsightsScreen(),
+    const GoalsScreen(),
+    const ProfileScreen(),
   ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: _currentIndex,
         children: _screens,
       ),
+
 
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -61,19 +64,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_rounded),
-              label: "Home",
+              icon: Icon(Icons.apps_rounded),
+              label: "Dashboard",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.list_rounded),
+              icon: Icon(Icons.assignment_rounded),
               label: "History",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.analytics_rounded),
+              icon: Icon(Icons.auto_awesome_rounded),
               label: "Insights",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.flag_rounded),
+              icon: Icon(Icons.track_changes_rounded),
               label: "Goals",
             ),
             BottomNavigationBarItem(

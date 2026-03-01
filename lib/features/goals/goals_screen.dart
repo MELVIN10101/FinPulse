@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../data/local/database_helper.dart';
+import '../../data/models/goal_model.dart';
 import '../notifications/notification_screen.dart';
 import 'add_funds_success_screen.dart';
 import 'create_goal_screen.dart';
@@ -41,43 +43,16 @@ class GoalsScreen extends StatefulWidget {
 
 class _GoalsScreenState extends State<GoalsScreen>
     with TickerProviderStateMixin {
+  final _db = DatabaseHelper.instance;
   late List<AnimationController> _progressControllers;
   late List<Animation<double>> _progressAnimations;
 
-  final List<GoalItem> _goals = [
-    GoalItem(
-      id: '1',
-      title: 'New Home Fund',
-      subtitle: 'Dream apartment downpayment',
-      current: 12500,
-      target: 50000,
-      deadline: 'Dec 2025',
-      imagePath: 'assets/images/house.jpg',
-    ),
-    GoalItem(
-      id: '2',
-      title: 'Europe Trip',
-      subtitle: '14-day summer vacation',
-      current: 4200,
-      target: 5000,
-      deadline: 'Aug 2024',
-      imagePath: 'assets/images/plane.jpg',
-    ),
-    GoalItem(
-      id: '3',
-      title: 'Tesla Model 3',
-      subtitle: 'Full purchase fund',
-      current: 8150,
-      target: 45000,
-      deadline: 'Mar 2026',
-      imagePath: 'assets/images/tesla.jpg',
-    ),
-  ];
+  final List<GoalItem> _goals = [];
 
   double get _overallCurrent =>
       _goals.fold(0, (sum, g) => sum + g.current);
   double get _overallTarget =>
-      _goals.fold(0, (sum, g) => sum + g.target);
+      _goals.isEmpty ? 1 : _goals.fold(0, (sum, g) => sum + g.target);
   double get _overallProgress =>
       (_overallCurrent / _overallTarget).clamp(0.0, 1.0);
 
@@ -101,10 +76,31 @@ class _GoalsScreenState extends State<GoalsScreen>
     }
   }
 
+  Future<void> _loadGoalsFromDB() async {
+    final dbGoals = await _db.getAllGoals();
+    if (!mounted) return;
+    setState(() {
+      _goals.clear();
+      for (final g in dbGoals) {
+        _goals.add(GoalItem(
+          id: g.id,
+          title: g.title,
+          subtitle: g.subtitle,
+          current: g.current,
+          target: g.target,
+          deadline: g.deadline,
+          imagePath: g.imagePath,
+        ));
+      }
+    });
+    _reAnimate();
+  }
+
   @override
   void initState() {
     super.initState();
     _initAnimations();
+    _loadGoalsFromDB();
   }
 
   void _reAnimate() {
@@ -136,6 +132,17 @@ class _GoalsScreenState extends State<GoalsScreen>
         goal.current += result;
       });
 
+      // Persist to database
+      await _db.updateGoal(GoalModel(
+        id: goal.id,
+        title: goal.title,
+        subtitle: goal.subtitle,
+        current: goal.current,
+        target: goal.target,
+        deadline: goal.deadline,
+        imagePath: goal.imagePath,
+      ));
+
       if (!mounted) return;
 
       await Navigator.of(context).push(
@@ -156,6 +163,16 @@ class _GoalsScreenState extends State<GoalsScreen>
       MaterialPageRoute(builder: (_) => const CreateGoalScreen()),
     );
     if (newGoal != null) {
+      // Persist to database
+      await _db.insertGoal(GoalModel(
+        id: newGoal.id,
+        title: newGoal.title,
+        subtitle: newGoal.subtitle,
+        current: newGoal.current,
+        target: newGoal.target,
+        deadline: newGoal.deadline,
+        imagePath: newGoal.imagePath,
+      ));
       setState(() {
         _goals.add(newGoal);
       });
@@ -299,7 +316,7 @@ class _GoalsScreenState extends State<GoalsScreen>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '\$${_fmt(_overallCurrent)} Total',
+                      '₹${_fmt(_overallCurrent)} Total',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -325,7 +342,7 @@ class _GoalsScreenState extends State<GoalsScreen>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'of \$${_fmt(_overallTarget)} goal',
+                    'of ₹${_fmt(_overallTarget)} goal',
                     style: const TextStyle(
                         fontSize: 14, color: Color(0xFF64748B)),
                   ),
@@ -447,7 +464,7 @@ class _GoalsScreenState extends State<GoalsScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$${_fmt(goal.current)} of \$${_fmt(goal.target)}',
+                          '₹${_fmt(goal.current)} of ₹${_fmt(goal.target)}',
                           style: const TextStyle(
                               fontSize: 13, color: Color(0xFF94A3B8)),
                         ),
@@ -612,7 +629,7 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
     final remaining = widget.goal.target - widget.goal.current;
     if (value > remaining) {
       setState(() =>
-          _error = 'Amount exceeds remaining goal (\$${remaining.toStringAsFixed(2)})');
+          _error = 'Amount exceeds remaining goal (₹${remaining.toStringAsFixed(2)})');
       return;
     }
     Navigator.of(context).pop(value);
@@ -691,7 +708,7 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
                         style: TextStyle(
                             fontSize: 11, color: Color(0xFF64748B))),
                     Text(
-                      '\$${_fmt(widget.goal.current)}',
+                      '₹${_fmt(widget.goal.current)}',
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -706,7 +723,7 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
                         style: TextStyle(
                             fontSize: 11, color: Color(0xFF64748B))),
                     Text(
-                      '\$${_fmt(widget.goal.target - widget.goal.current)}',
+                      '₹${_fmt(widget.goal.target - widget.goal.current)}',
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -742,7 +759,7 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 14),
-                  child: Text('\$',
+                  child: Text('₹',
                       style: TextStyle(
                           fontSize: 18,
                           color: Color(0xFF64748B),

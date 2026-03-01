@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2e3f52",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                        "accent-blue": "#3b82f6",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<title>FinPulse Behavioral Insights - Spending</title>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between border-b border-slate-200 dark:border-primary/30">
+<div class="flex size-10 items-center justify-center rounded-full bg-slate-200 dark:bg-primary/20 text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center">Behavioral Insights</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full size-10 bg-transparent text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col pb-24">
+<nav class="sticky top-[73px] z-40 bg-background-light dark:bg-background-dark">
+<div class="flex border-b border-slate-200 dark:border-primary/30 px-4 gap-8">
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-4" href="#">
+<p class="text-sm font-bold">Overview</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-slate-900 dark:text-white pb-3 pt-4" href="#">
+<p class="text-sm font-bold">Spending</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-4" href="#">
+<p class="text-sm font-bold">Psychology</p>
+</a>
+</div>
+</nav>
+<section class="px-4 pt-6 pb-2">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="text-2xl font-bold tracking-tight">Spending Analysis</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Detailed breakdown of your capital flow.</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total Monthly</p>
+<p class="text-xl font-extrabold text-accent-blue">$4,281.50</p>
+</div>
+</div>
+</section>
+<section class="p-4">
+<div class="rounded-xl border border-slate-200 dark:border-primary/40 bg-white dark:bg-primary/10 p-5">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-bold text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">Category Intensity</h4>
+<div class="flex gap-2">
+<span class="size-2 rounded-full bg-accent-blue"></span>
+<span class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+</div>
+</div>
+<div class="flex items-end justify-between h-40 gap-3">
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-accent-blue/80 rounded-t-md h-[85%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$1.2k</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Rent</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-accent-blue/40 rounded-t-md h-[45%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$640</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Food</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-accent-blue/60 rounded-t-md h-[60%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$820</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Auto</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-accent-blue/20 rounded-t-md h-[25%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$310</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Fun</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-accent-blue/30 rounded-t-md h-[35%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">$480</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Util</span>
+</div>
+</div>
+</div>
+</section>
+<section class="px-4 py-2 space-y-4">
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 text-xs font-bold whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                        This Month
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-transparent border border-slate-200 dark:border-primary/20 text-xs font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">sell</span>
+                        All Tags
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-transparent border border-slate-200 dark:border-primary/20 text-xs font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-sm">storefront</span>
+                        Merchants
+                    </button>
+</div>
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-lg">search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-primary/5 border-slate-200 dark:border-primary/30 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue outline-none transition-all text-sm" placeholder="Search transactions..." type="text"/>
+</div>
+</section>
+<section class="flex-1 px-4 mt-4 space-y-3">
+<div class="flex justify-between items-center mb-2">
+<h4 class="font-bold text-lg">Recent Ledger</h4>
+<span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-500 px-2 py-1 rounded uppercase">32 New</span>
+</div>
+<div class="space-y-3 max-h-[400px] overflow-y-auto no-scrollbar pr-1">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-primary/10 border border-slate-100 dark:border-transparent">
+<div class="flex size-11 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-bold text-sm truncate">Premium Clothing Store</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] text-slate-400">Today, 2:45 PM</span>
+<span class="size-1 rounded-full bg-slate-400"></span>
+<span class="text-[10px] font-bold text-accent-blue uppercase tracking-tight">#impulse</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-extrabold text-sm text-rose-500">-$245.00</p>
+<p class="text-[10px] text-slate-400">Credit Card</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-primary/10 border border-slate-100 dark:border-transparent">
+<div class="flex size-11 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-bold text-sm truncate">The Daily Bean Co.</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] text-slate-400">Today, 8:12 AM</span>
+<span class="size-1 rounded-full bg-slate-400"></span>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">#routine</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-extrabold text-sm text-rose-500">-$6.45</p>
+<p class="text-[10px] text-slate-400">Cash</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-primary/10 border border-slate-100 dark:border-transparent">
+<div class="flex size-11 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-bold text-sm truncate">City Utilities Bureau</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] text-slate-400">Yesterday, 10:20 AM</span>
+<span class="size-1 rounded-full bg-slate-400"></span>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">#fixed</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-extrabold text-sm text-rose-500">-$128.90</p>
+<p class="text-[10px] text-slate-400">Bank Transfer</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-primary/10 border border-slate-100 dark:border-transparent">
+<div class="flex size-11 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-bold text-sm truncate">Global Petrol Station</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] text-slate-400">Oct 24, 6:30 PM</span>
+<span class="size-1 rounded-full bg-slate-400"></span>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">#essentials</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-extrabold text-sm text-rose-500">-$82.15</p>
+<p class="text-[10px] text-slate-400">Debit Card</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="fixed bottom-0 w-full z-50">
+<div class="flex gap-2 border-t border-slate-200 dark:border-primary/40 bg-background-light dark:bg-background-dark/95 backdrop-blur-md px-4 pb-6 pt-3">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<p class="text-xs font-medium">Wallet</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-accent-blue dark:text-white" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">insights</span>
+</div>
+<p class="text-xs font-bold">Insights</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">pie_chart</span>
+</div>
+<p class="text-xs font-medium">Budget</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">person</span>
+</div>
+<p class="text-xs font-medium">Profile</p>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>

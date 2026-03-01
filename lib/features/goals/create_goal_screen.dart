@@ -366,7 +366,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                                 _inputField(
                                   controller: _targetController,
                                   hint: '5,000',
-                                  prefixText: '\$ ',
+                                  prefixText: '₹ ',
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
                                           decimal: true),

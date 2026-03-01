@@ -467,7 +467,7 @@ class _WeekwiseTransactionsScreenState
             const Spacer(),
             _miniBarChart(),
           ]),
-          Text("\$${_totalSpending.toStringAsFixed(2)}",
+          Text("₹${_totalSpending.toStringAsFixed(2)}",
               style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
@@ -530,7 +530,7 @@ class _WeekwiseTransactionsScreenState
           ]),
         ),
         Text(
-          "${isIncome ? '+' : '-'}\$${(c["amount"] as double).toStringAsFixed(2)}",
+          "${isIncome ? '+' : '-'}₹${(c["amount"] as double).toStringAsFixed(2)}",
           style: TextStyle(
               color: isIncome ? const Color(0xFF22C55E) : Colors.white,
               fontSize: 15,
@@ -574,7 +574,7 @@ class _WeekwiseTransactionsScreenState
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(
-              "${isIncome ? '+' : '-'}\$${(tx["amount"] as double).abs().toStringAsFixed(2)}",
+              "${isIncome ? '+' : '-'}₹${(tx["amount"] as double).abs().toStringAsFixed(2)}",
               style: TextStyle(
                   color: isIncome
                       ? const Color(0xFF22C55E)

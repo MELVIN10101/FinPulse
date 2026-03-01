@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinPulse Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1a1a7f",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121220",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex h-screen w-full max-w-md mx-auto flex-col bg-white dark:bg-background-dark shadow-xl overflow-hidden">
+<!-- Header -->
+<div class="flex items-center bg-white dark:bg-background-dark p-4 justify-between border-b border-slate-100 dark:border-slate-800">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Profile</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Profile Section -->
+<div class="flex flex-col items-center py-8 px-4 bg-white dark:bg-background-dark">
+<div class="relative mb-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full border-4 border-primary/10 min-h-32 w-32 shadow-sm" data-alt="Professional headshot of a smiling woman named Kavya" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9wKWxm8YNhcBlUkwuD-jEp0_OB3d1-grPa6QxijxCqJfut2Z0a8uoG74bemOj78MR_1Y4GADN1iThuQOtyOaw0AB4K0ixwSNP6lRWfOhrWFcTXmUezOFeI0pwb9lcUzhHxEYJx_70npAmsNUcClO1DzmBfDhWcWklUuHFmrFkRBkOf9SI6060ZsIEyvwssvs1dcwlkeVbN1uZLR4Bv39_U687bplIMuJnrsLhOItTTxDLtDjixKXsN23QL2RdKJJqT8q0bDNRAws");'>
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center">
+<h1 class="text-slate-900 dark:text-slate-100 text-2xl font-bold leading-tight tracking-tight text-center">Kavya Sharma</h1>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">kavya@finpulse.com</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">Age: 28</span>
+<span class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold">@kavya_pulse</span>
+</div>
+</div>
+</div>
+<!-- Menu Options -->
+<div class="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 px-4 py-6 space-y-3">
+<a class="flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors active:bg-slate-50" href="#">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">person</span>
+</div>
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold flex-1">Edit Profile</p>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</a>
+<a class="flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors active:bg-slate-50" href="#">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">lock</span>
+</div>
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold flex-1">Change Password</p>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</a>
+<a class="flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors active:bg-slate-50" href="#">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">settings</span>
+</div>
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold flex-1">Settings</p>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</a>
+<div class="pt-4 pb-2">
+<p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Account Actions</p>
+</div>
+<a class="flex items-center gap-4 bg-white dark:bg-slate-800/50 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors active:bg-red-50" href="#">
+<div class="text-red-600 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/20 shrink-0 size-10">
+<span class="material-symbols-outlined">logout</span>
+</div>
+<p class="text-red-600 font-semibold flex-1">Logout</p>
+<span class="material-symbols-outlined text-red-200">chevron_right</span>
+</a>
+<a class="flex items-center gap-4 p-4 rounded-xl transition-colors hover:bg-red-50 group" href="#">
+<div class="text-red-400 group-hover:text-red-600 flex items-center justify-center shrink-0 size-10">
+<span class="material-symbols-outlined">delete_forever</span>
+</div>
+<p class="text-red-400 group-hover:text-red-600 font-medium flex-1">Delete Account</p>
+</a>
+</div>
+<!-- Bottom Navigation -->
+<div class="flex gap-1 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-background-dark px-2 pb-6 pt-2 shrink-0">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-[10px] font-semibold">Dashboard</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<p class="text-[10px] font-semibold">Transactions</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<p class="text-[10px] font-semibold">Insights</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">target</span>
+<p class="text-[10px] font-semibold">Goals</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<p class="text-[10px] font-bold">Profile</p>
+<div class="w-1 h-1 bg-primary rounded-full mt-0.5"></div>
+</a>
+</div>
+</div>
+</body></html>

@@ -533,7 +533,7 @@ class _DaywiseTransactionsScreenState
           ),
           const SizedBox(height: 14),
           Text(
-            "\$${total.abs().toStringAsFixed(2)}",
+            "₹${total.abs().toStringAsFixed(2)}",
             style: const TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w700,
@@ -592,7 +592,7 @@ class _DaywiseTransactionsScreenState
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "${isIncome ? '+' : '-'}\$${amount.abs().toStringAsFixed(2)}",
+                "${isIncome ? '+' : '-'}₹${amount.abs().toStringAsFixed(2)}",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,

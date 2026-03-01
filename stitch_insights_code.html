@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinPulse Behavioral Insights</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2e3f52",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between max-w-2xl mx-auto w-full">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center">Behavioral Insights</h1>
+<div class="flex w-10 items-center justify-end">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-2xl mx-auto w-full pb-24">
+<!-- Hero: Impulse Risk Score Gauge -->
+<div class="p-4">
+<div class="relative overflow-hidden flex flex-col items-center justify-center rounded-xl bg-slate-200/50 dark:bg-primary/10 border border-slate-200 dark:border-primary/20 p-8 text-center">
+<!-- Decorative background elements -->
+<div class="absolute -top-12 -right-12 size-32 rounded-full bg-primary/10 blur-3xl"></div>
+<div class="relative flex flex-col items-center">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Impulse Risk Score</p>
+<!-- SVG Gauge Representation -->
+<div class="relative size-48 flex items-center justify-center">
+<svg class="size-full -rotate-90" viewbox="0 0 100 100">
+<circle class="text-slate-300 dark:text-slate-800" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="8"></circle>
+<circle class="text-red-500" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="45.2" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-4xl font-extrabold">82</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">HIGH RISK</span>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-2">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight">Spending is heating up</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-normal px-4">Your impulse spending has increased by 15% this week. Most triggers occurred during late-night hours.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+<!-- Spending Velocity -->
+<div class="flex flex-col gap-3 rounded-xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-slate-400 text-xl">speed</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide">Velocity</p>
+</div>
+<div class="flex flex-col">
+<p class="text-2xl font-bold leading-tight">$120<span class="text-sm font-medium text-slate-400">/day</span></p>
+<div class="flex items-center gap-1 mt-1 text-red-500">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-xs font-bold">+12% vs last wk</span>
+</div>
+</div>
+</div>
+<!-- Emotional Volatility -->
+<div class="flex flex-col gap-3 rounded-xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-slate-400 text-xl">psychology</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide">Volatility</p>
+</div>
+<div class="flex flex-col">
+<p class="text-2xl font-bold leading-tight">Medium</p>
+<div class="flex items-center gap-1 mt-1 text-emerald-500">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span class="text-xs font-bold">-5% variance</span>
+</div>
+</div>
+</div>
+<!-- Liquidity Buffer -->
+<div class="flex flex-col gap-3 rounded-xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-slate-400 text-xl">account_balance_wallet</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide">Buffer</p>
+</div>
+<div class="flex flex-col">
+<p class="text-2xl font-bold leading-tight">4.2 <span class="text-sm font-medium text-slate-400">mos</span></p>
+<div class="flex items-center gap-1 mt-1 text-emerald-500">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-xs font-bold">+0.1 gain</span>
+</div>
+</div>
+</div>
+</div>
+<!-- End-of-Month Risk Alert -->
+<div class="p-4">
+<div class="group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border-2 border-red-500/20 bg-red-500/5 p-5">
+<div class="flex items-start gap-4">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-500">
+<span class="material-symbols-outlined font-bold">warning</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight">End-of-Month Risk</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-normal">High probability of exceeding budget by <span class="text-red-500 font-bold">$250</span> based on current trends.</p>
+</div>
+</div>
+<button class="w-full md:w-auto flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal transition-all hover:opacity-90 active:scale-95">
+                    View Forecast
+                </button>
+</div>
+</div>
+<!-- Behavioral Patterns -->
+<div class="p-4">
+<h3 class="text-lg font-bold mb-4">Recurring Patterns</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-slate-200/30 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary dark:text-slate-300">
+<span class="material-symbols-outlined">coffee</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm">Caffeine Overspend</p>
+<p class="text-xs text-slate-500">Daily average $14.20, typically 8:30 AM</p>
+</div>
+<span class="text-xs font-bold text-red-500">+22%</span>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl bg-slate-200/30 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary dark:text-slate-300">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm">Weekend Retail Therapy</p>
+<p class="text-xs text-slate-500">Peak spending Sunday 2:00 PM - 5:00 PM</p>
+</div>
+<span class="text-xs font-bold text-emerald-500">-8%</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 pb-6 pt-2">
+<div class="max-w-2xl mx-auto flex gap-2">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary dark:text-slate-100" href="#">
+<span class="material-symbols-outlined filled-icon">insights</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Insights</p>
+<div class="h-1 w-1 rounded-full bg-primary dark:bg-slate-100"></div>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Budget</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Profile</p>
+</a>
+</div>
+</nav>
+</body></html>

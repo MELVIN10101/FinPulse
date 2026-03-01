@@ -210,7 +210,7 @@ class _AddFundsSuccessScreenState extends State<AddFundsSuccessScreen>
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '+\$${widget.amountAdded.toStringAsFixed(2)}',
+                                    '+₹${widget.amountAdded.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
@@ -251,7 +251,7 @@ class _AddFundsSuccessScreenState extends State<AddFundsSuccessScreen>
                                 ),
                               ),
                               Text(
-                                '\$${_fmt(widget.goal.current)} of \$${_fmt(widget.goal.target)}',
+                                '₹${_fmt(widget.goal.current)} of ₹${_fmt(widget.goal.target)}',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: Color(0xFF94A3B8),
