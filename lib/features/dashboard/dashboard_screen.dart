@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/local/database_helper.dart';
 import '../../data/models/transaction_model.dart';
+import '../../data/services/notification_service.dart';
 import 'widgets/score_gauge.dart';
 import 'widgets/income_expense_card.dart';
 import 'widgets/spending_trend_card.dart';
@@ -25,10 +27,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<double> _weeklyTrend = [];
   bool _loading = true;
 
+  late final StreamSubscription<TransactionModel> _txSub;
+
   @override
   void initState() {
     super.initState();
     _load();
+    _txSub = NotificationService.instance.onNewTransaction.listen((_) {
+      if (mounted) _load();
+    });
+  }
+
+  @override
+  void dispose() {
+    _txSub.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {

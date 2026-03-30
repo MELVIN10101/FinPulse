@@ -243,7 +243,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                       fontSize: 14, fontWeight: FontWeight.w700),
                   unselectedLabelStyle: const TextStyle(
                       fontSize: 14, fontWeight: FontWeight.w700),
-                  dividerColor: const Color(0xFF2E3F52).withValues(alpha: 0.3),
+                  dividerColor: const Color(0xFF2E3F52).withOpacity(0.3),
                   tabs: const [
                     Tab(text: 'Overview'),
                     Tab(text: 'Spending'),
@@ -279,7 +279,7 @@ class _InsightsScreenState extends State<InsightsScreen>
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF2E3F52).withValues(alpha: 0.2),
+                color: const Color(0xFF2E3F52).withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child:
@@ -407,9 +407,9 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.1),
+        color: const Color(0xFF2E3F52).withOpacity(0.1),
         border: Border.all(
-            color: const Color(0xFF2E3F52).withValues(alpha: 0.4)),
+            color: const Color(0xFF2E3F52).withOpacity(0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,9 +467,9 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.05),
+        color: const Color(0xFF2E3F52).withOpacity(0.05),
         border: Border.all(
-            color: const Color(0xFF2E3F52).withValues(alpha: 0.4)),
+            color: const Color(0xFF2E3F52).withOpacity(0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,7 +491,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2E3F52).withValues(alpha: 0.3),
+                  color: const Color(0xFF2E3F52).withOpacity(0.3),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text('Last 7 Days',
@@ -523,9 +523,9 @@ class _InsightsScreenState extends State<InsightsScreen>
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(4)),
                           color: isMax
-                              ? const Color(0xFF2E3F52).withValues(alpha: 0.8)
+                              ? const Color(0xFF2E3F52).withOpacity(0.8)
                               : const Color(0xFF2E3F52)
-                                  .withValues(alpha: 0.2),
+                                  .withOpacity(0.2),
                         ),
                       ),
                     ),
@@ -556,7 +556,7 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.1),
+        color: const Color(0xFF2E3F52).withOpacity(0.1),
         border: Border.all(color: Colors.transparent),
       ),
       child: Row(
@@ -565,11 +565,11 @@ class _InsightsScreenState extends State<InsightsScreen>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: d.iconBg.withValues(alpha: 0.15),
+              color: d.iconBg.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(d.icon,
-                color: d.iconBg.withValues(alpha: 0.9), size: 24),
+                color: d.iconBg.withOpacity(0.9), size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -627,20 +627,22 @@ class _InsightsScreenState extends State<InsightsScreen>
       children: [
         // Title row
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-              Text('Spending Analysis',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5)),
-              SizedBox(height: 4),
-              Text('Detailed breakdown of your capital flow.',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
-            ]),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
+                Text('Spending Analysis',
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.5)),
+                SizedBox(height: 4),
+                Text('Detailed breakdown of your capital flow.',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+              ]),
+            ),
+            const SizedBox(width: 12),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               const Text('TOTAL MONTHLY',
                   style: TextStyle(
@@ -649,11 +651,14 @@ class _InsightsScreenState extends State<InsightsScreen>
                       color: Color(0xFF94A3B8),
                       letterSpacing: 2)),
               const SizedBox(height: 2),
-              Text('₹${_totalMonthly.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF3B82F6))),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('₹${_totalMonthly.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF3B82F6))),
+              ),
             ]),
           ],
         )
@@ -688,9 +693,9 @@ class _InsightsScreenState extends State<InsightsScreen>
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: const Color(0xFF2E3F52).withValues(alpha: 0.05),
+            color: const Color(0xFF2E3F52).withOpacity(0.05),
             border: Border.all(
-                color: const Color(0xFF2E3F52).withValues(alpha: 0.3)),
+                color: const Color(0xFF2E3F52).withOpacity(0.3)),
           ),
           child: TextField(
             onChanged: (v) => setState(() => _searchQuery = v),
@@ -720,7 +725,7 @@ class _InsightsScreenState extends State<InsightsScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF22C55E).withValues(alpha: 0.2),
+                color: const Color(0xFF22C55E).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text('${filteredTx.length} New',
@@ -754,9 +759,9 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.1),
+        color: const Color(0xFF2E3F52).withOpacity(0.1),
         border: Border.all(
-            color: const Color(0xFF2E3F52).withValues(alpha: 0.4)),
+            color: const Color(0xFF2E3F52).withOpacity(0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -781,7 +786,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                        color: const Color(0xFF64748B).withValues(alpha: 0.4),
+                        color: const Color(0xFF64748B).withOpacity(0.4),
                         shape: BoxShape.circle)),
               ]),
             ],
@@ -811,7 +816,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                                   borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(4)),
                                   color: const Color(0xFF3B82F6)
-                                      .withValues(alpha: opacity),
+                                      .withOpacity(opacity),
                                 ),
                               ),
                             ),
@@ -847,12 +852,12 @@ class _InsightsScreenState extends State<InsightsScreen>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: active
-            ? const Color(0xFF2E3F52).withValues(alpha: 0.2)
+            ? const Color(0xFF2E3F52).withOpacity(0.2)
             : Colors.transparent,
         border: Border.all(
           color: active
-              ? const Color(0xFF2E3F52).withValues(alpha: 0.4)
-              : const Color(0xFF2E3F52).withValues(alpha: 0.2),
+              ? const Color(0xFF2E3F52).withOpacity(0.4)
+              : const Color(0xFF2E3F52).withOpacity(0.2),
         ),
       ),
       child: Row(
@@ -920,7 +925,7 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.1),
+        color: const Color(0xFF2E3F52).withOpacity(0.1),
       ),
       child: Row(
         children: [
@@ -928,11 +933,11 @@ class _InsightsScreenState extends State<InsightsScreen>
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: catColor.withValues(alpha: 0.15),
+              color: catColor.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(catIcon,
-                color: catColor.withValues(alpha: 0.8), size: 22),
+                color: catColor.withOpacity(0.8), size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -1016,7 +1021,7 @@ class _InsightsScreenState extends State<InsightsScreen>
             style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: Colors.white.withValues(alpha: 0.35),
+                color: Colors.white.withOpacity(0.35),
                 letterSpacing: 3)),
         const SizedBox(height: 8),
         const Text('Your Money Brain',
@@ -1031,7 +1036,7 @@ class _InsightsScreenState extends State<InsightsScreen>
           'Cognitive blindspots silently determine how you spend.',
           style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.45),
+              color: Colors.white.withOpacity(0.45),
               height: 1.5),
         ),
         const SizedBox(height: 28),
@@ -1060,12 +1065,12 @@ class _InsightsScreenState extends State<InsightsScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFF2E3F52).withValues(alpha: 0.15),
-                const Color(0xFF2E3F52).withValues(alpha: 0.05),
+                const Color(0xFF2E3F52).withOpacity(0.15),
+                const Color(0xFF2E3F52).withOpacity(0.05),
               ],
             ),
             border: Border.all(
-                color: const Color(0xFF2E3F52).withValues(alpha: 0.3)),
+                color: const Color(0xFF2E3F52).withOpacity(0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1086,7 +1091,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                 'influence on your spending by up to 23%.',
                 style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: Colors.white.withOpacity(0.45),
                     height: 1.5),
               ),
             ],
@@ -1101,9 +1106,9 @@ class _InsightsScreenState extends State<InsightsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFF2E3F52).withValues(alpha: 0.08),
+        color: const Color(0xFF2E3F52).withOpacity(0.08),
         border: Border.all(
-            color: const Color(0xFF2E3F52).withValues(alpha: 0.2)),
+            color: const Color(0xFF2E3F52).withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1114,11 +1119,11 @@ class _InsightsScreenState extends State<InsightsScreen>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: c.iconBg.withValues(alpha: 0.15),
+                  color: c.iconBg.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(c.icon,
-                    color: c.iconBg.withValues(alpha: 0.9), size: 20),
+                    color: c.iconBg.withOpacity(0.9), size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1134,7 +1139,7 @@ class _InsightsScreenState extends State<InsightsScreen>
           Text(c.body,
               style: TextStyle(
                   fontSize: 13,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: Colors.white.withOpacity(0.5),
                   height: 1.6)),
           const SizedBox(height: 12),
           Text(c.tag,

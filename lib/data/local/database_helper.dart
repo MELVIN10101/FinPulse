@@ -10,8 +10,15 @@ import '../models/user_profile_model.dart';
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
+  static String? _customPath;
 
   DatabaseHelper._internal();
+
+  /// Set a custom path for the database (used for testing).
+  static void setTestPath(String? path) {
+    _customPath = path;
+    _database = null; // Reset cache
+  }
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -21,7 +28,9 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path;
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    if (_customPath != null) {
+      path = _customPath!;
+    } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       final dir = await getApplicationSupportDirectory();
       path = p.join(dir.path, 'finpulse.db');
     } else {
@@ -31,7 +40,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -46,7 +55,8 @@ class DatabaseHelper {
         category TEXT NOT NULL,
         type TEXT NOT NULL,
         timestamp TEXT NOT NULL,
-        note TEXT DEFAULT ''
+        note TEXT DEFAULT '',
+        sms_id TEXT UNIQUE DEFAULT NULL
       )
     ''');
 
@@ -107,6 +117,14 @@ class DatabaseHelper {
           google_id TEXT DEFAULT ''
         )
       ''');
+    }
+    if (oldVersion < 3) {
+      // Add sms_id column for deduplication of SMS-sourced transactions.
+      // SQLite does not support adding a UNIQUE column via ALTER TABLE directly.
+      await db.execute('ALTER TABLE transactions ADD COLUMN sms_id TEXT');
+      await db.execute(
+        'CREATE UNIQUE INDEX idx_transactions_sms_id ON transactions (sms_id)',
+      );
     }
   }
 
@@ -215,6 +233,25 @@ class DatabaseHelper {
   Future<int> insertTransaction(TransactionModel tx) async {
     final db = await database;
     return await db.insert('transactions', tx.toMap());
+  }
+
+  /// Insert a transaction sourced from SMS. Returns the new row id, or -1 if
+  /// [smsId] has already been recorded (i.e. deduplication skips it).
+  Future<int> insertTransactionDeduped({
+    required String smsId,
+    required TransactionModel tx,
+  }) async {
+    final db = await database;
+    final map = tx.toMap()..['sms_id'] = smsId;
+    try {
+      return await db.insert(
+        'transactions',
+        map,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    } catch (_) {
+      return -1;
+    }
   }
 
   Future<List<TransactionModel>> getAllTransactions() async {
@@ -352,7 +389,7 @@ class DatabaseHelper {
     return weeklyData;
   }
 
-  Future<Map<String, List<double>>> getMonthlyIncomeExpense() async {
+  Future<Map<String, dynamic>> getMonthlyIncomeExpense() async {
     final db = await database;
     final now = DateTime.now();
     final months = <String>[];
@@ -378,7 +415,7 @@ class DatabaseHelper {
       expenses.add((expResult.first['total'] as num?)?.toDouble() ?? 0.0);
     }
 
-    return {'months': [], 'incomes': incomes, 'expenses': expenses};
+    return {'months': months, 'incomes': incomes, 'expenses': expenses};
   }
 
   String _monthLabel(int m) => const [
