@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "826927029901",
+    "project_id": "finpulse-e03a9",
+    "storage_bucket": "finpulse-e03a9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826927029901:android:4f421e355fed388f6b8cc4",
+        "android_client_info": {
+          "package_name": "com.redwing.Finpulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQbpm6Kz10Z0lOYD22rXomY9T8hcL3OHk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

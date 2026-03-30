@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import '../navigation/main_navigation_screen.dart';
+import 'auth_service.dart';
 import 'screens/login_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -9,22 +8,17 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+    return StreamBuilder<AppUser?>(
+      stream: AuthService.instance.authStateChanges,
       builder: (context, snapshot) {
-
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
-
         if (snapshot.hasData) {
           return const MainNavigationScreen();
         }
-
         return const LoginScreen();
       },
     );

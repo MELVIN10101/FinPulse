@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import '../models/transaction_model.dart';
 import '../models/goal_model.dart';
 import '../models/user_profile_model.dart';
@@ -17,13 +20,20 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'finpulse.db');
+    String path;
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      final dir = await getApplicationSupportDirectory();
+      path = p.join(dir.path, 'finpulse.db');
+    } else {
+      final dbPath = await getDatabasesPath();
+      path = p.join(dbPath, 'finpulse.db');
+    }
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -70,8 +80,34 @@ class DatabaseHelper {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE users (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT DEFAULT '',
+        avatar_url TEXT DEFAULT '',
+        google_id TEXT DEFAULT ''
+      )
+    ''');
+
     // Seed demo data
     await _seedData(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          email TEXT NOT NULL UNIQUE,
+          password_hash TEXT DEFAULT '',
+          avatar_url TEXT DEFAULT '',
+          google_id TEXT DEFAULT ''
+        )
+      ''');
+    }
   }
 
   Future<void> _seedData(Database db) async {
@@ -445,5 +481,69 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('transactions');
     await db.delete('goals');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // USERS (Local Auth)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Future<String?> createUser({
+    required String id,
+    required String name,
+    required String email,
+    required String passwordHash,
+    String avatarUrl = '',
+    String googleId = '',
+  }) async {
+    final db = await database;
+    try {
+      await db.insert('users', {
+        'id': id,
+        'name': name,
+        'email': email.toLowerCase(),
+        'password_hash': passwordHash,
+        'avatar_url': avatarUrl,
+        'google_id': googleId,
+      });
+      return id;
+    } catch (e) {
+      return null; // email already exists
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email.toLowerCase()],
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  Future<Map<String, dynamic>?> getUserById(String id) async {
+    final db = await database;
+    final result = await db.query('users', where: 'id = ?', whereArgs: [id]);
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  Future<void> updateUserGoogleId(String email, String googleId) async {
+    final db = await database;
+    await db.update(
+      'users',
+      {'google_id': googleId},
+      where: 'email = ?',
+      whereArgs: [email.toLowerCase()],
+    );
+  }
+
+  Future<bool> emailExists(String email) async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email.toLowerCase()],
+    );
+    return result.isNotEmpty;
   }
 }

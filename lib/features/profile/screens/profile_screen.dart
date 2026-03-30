@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/user_profile_model.dart';
+import '../../../features/auth/auth_service.dart';
 import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -476,14 +477,42 @@ class _ProfileScreenState extends State<ProfileScreen>
 
           // Sign Out — danger
           GestureDetector(
-            onTap: () => _showSnack('Sign out — offline mode'),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: const Color(0xFF1A2028),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  title: const Text('Sign Out',
+                      style: TextStyle(color: Colors.white)),
+                  content: const Text(
+                      'Are you sure you want to sign out?',
+                      style: TextStyle(color: Color(0xFF94A3B8))),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancel',
+                          style: TextStyle(color: Color(0xFF94A3B8))),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Sign Out',
+                          style: TextStyle(color: Color(0xFFEF4444))),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                await AuthService.instance.signOut();
+              }
+            },
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: _danger.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border:
-                    Border.all(color: _danger.withValues(alpha: 0.2)),
+                border: Border.all(color: _danger.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: const [

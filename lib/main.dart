@@ -1,25 +1,24 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'features/navigation/main_navigation_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'features/auth/auth_service.dart';
+import 'app.dart';
 
-void main() {
-  runApp(const FinPulseApp());
-}
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class FinPulseApp extends StatelessWidget {
-  const FinPulseApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF040B16),
-      ),
-
-      home: const MainNavigationScreen(),
-    );
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    // Initialize SQLite FFI for desktop
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  } else {
+    // Initialize Firebase for Android / iOS
+    await Firebase.initializeApp();
   }
+
+  // Restore persisted auth session (desktop: SharedPreferences; mobile: Firebase handles it)
+  await AuthService.instance.init();
+
+  runApp(const FinPulseApp());
 }
