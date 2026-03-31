@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../local/database_helper.dart';
 import '../models/transaction_model.dart';
+import '../../core/constants/categories_data.dart';
 
 /// Handles SMS permission, bulk historical SMS import, and real-time SMS parsing.
 class SMSService {
@@ -217,27 +218,9 @@ class SMSService {
 
   String detectCategory(String merchant, String body, String type) {
     if (type == 'Credit') return 'Income';
-    final text = '$merchant $body'.toLowerCase();
-
-    final rules = <String, List<String>>{
-      'Food': ['zomato', 'swiggy', 'barbeque', 'bbq', 'restaurant', 'hotel', 'food', 'cafe', 'coffee', 'pizza', 'burger', 'kfc', 'mcd', 'dominos', 'dining', 'bakery', 'biryani', 'tiffin'],
-      'Shopping': ['amazon', 'flipkart', 'myntra', 'ajio', 'snapdeal', 'meesho', 'store', 'mall', 'mart', 'shopping', 'retail', 'lifestyle', 'westside', 'reliance', 'dmart'],
-      'Groceries': ['grocery', 'groceries', 'vegetables', 'milk', 'fruits', 'zepto', 'bigbasket', 'blinkit', 'grofers', 'dunzo', 'kirana'],
-      'Travel': ['uber', 'ola', 'rapido', 'flight', 'airways', 'indigo', 'train', 'irctc', 'bus', 'metro', 'taxi', 'travel'],
-      'Bills': ['electricity', 'water', 'gas', 'bill', 'recharge', 'mobile', 'broadband', 'internet', 'dth', 'utility', 'insurance', 'emi'],
-      'Entertainment': ['netflix', 'prime', 'hotstar', 'disney', 'music', 'apple', 'itunes', 'spotify', 'bookmyshow', 'movie', 'cinema', 'entertainment', 'subscription', 'game'],
-      'Health': ['apollo', 'hospital', 'clinic', 'pharmacy', 'medic', 'health', 'doctor', 'diagnostic', 'lab', 'medicine'],
-      'Transport': ['fuel', 'petrol', 'diesel', 'toll', 'parking'],
-    };
-
-    for (final entry in rules.entries) {
-      if (_containsAny(text, entry.value)) return entry.key;
-    }
-    return 'Others';
+    return AppCategories.detectCategory(merchant, body);
   }
 
-  bool _containsAny(String text, List<String> keywords) =>
-      keywords.any((kw) => text.contains(kw));
 
   // ─────────────────────────────────────────────────────────────────────────
   // Fingerprint for background-cached SMS (no native sms_id available)

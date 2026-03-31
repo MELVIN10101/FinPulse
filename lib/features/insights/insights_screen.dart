@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/local/database_helper.dart';
 import '../../data/models/transaction_model.dart';
+import '../../core/constants/categories_data.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -98,6 +99,11 @@ class _InsightsScreenState extends State<InsightsScreen>
     final lastWeekExp =
         await _db.getTotalExpense(start: prevWeekStart, end: weekStart);
     final cats = await _db.getCategoryTotals(start: monthStart, end: monthEnd);
+    // Ensure all expense categories are present, even with 0.0
+    for (final expCat in AppCategories.expenseCategories) {
+      cats.putIfAbsent(expCat.label, () => 0.0);
+    }
+
     final recent = await _db.getRecentTransactions(limit: 25);
 
     // ── Impulse Score ───────────────────────────
@@ -752,11 +758,14 @@ class _InsightsScreenState extends State<InsightsScreen>
     if (_catTotals.isEmpty) {
       return const SizedBox();
     }
-    final maxCat = _catTotals.values.reduce(max);
-    final entries = _catTotals.entries.take(5).toList();
+    final maxCat = _catTotals.values.isEmpty ? 1.0 : _catTotals.values.reduce(max).clamp(1.0, double.infinity);
+    // Sort all expense categories by their total in _catTotals, or just show all
+    final sortedCats = AppCategories.expenseCategories.toList()
+      ..sort((a, b) => (_catTotals[b.label] ?? 0).compareTo(_catTotals[a.label] ?? 0));
+    final entries = sortedCats.take(6).toList();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: const Color(0xFF2E3F52).withOpacity(0.1),
@@ -795,9 +804,9 @@ class _InsightsScreenState extends State<InsightsScreen>
           SizedBox(
             height: 140,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: entries.map((e) {
-                final fraction = e.value / maxCat;
+                final total = _catTotals[e.label] ?? 0.0;
+                final fraction = total / maxCat;
                 // Vary the blue opacity based on relative value
                 final opacity = 0.2 + (fraction * 0.6);
                 return Expanded(
@@ -824,9 +833,9 @@ class _InsightsScreenState extends State<InsightsScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          e.key.length > 4
-                              ? e.key.substring(0, 4)
-                              : e.key,
+                          e.label.length > 4
+                              ? e.label.substring(0, 4)
+                              : e.label,
                           style: const TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -890,31 +899,9 @@ class _InsightsScreenState extends State<InsightsScreen>
       }
     }
 
-    IconData catIcon;
-    Color catColor;
-    switch (tx.category) {
-      case 'Food':
-        catIcon = Icons.restaurant_rounded;
-        catColor = const Color(0xFFEA580C);
-      case 'Shopping':
-        catIcon = Icons.shopping_bag_rounded;
-        catColor = const Color(0xFF6366F1);
-      case 'Transport':
-        catIcon = Icons.directions_car_rounded;
-        catColor = const Color(0xFF3B82F6);
-      case 'Bills':
-        catIcon = Icons.receipt_long_rounded;
-        catColor = const Color(0xFF22C55E);
-      case 'Entertainment':
-        catIcon = Icons.movie_rounded;
-        catColor = const Color(0xFFEC4899);
-      case 'Groceries':
-        catIcon = Icons.local_grocery_store_rounded;
-        catColor = const Color(0xFF14B8A6);
-      default:
-        catIcon = Icons.attach_money_rounded;
-        catColor = const Color(0xFF94A3B8);
-    }
+    final catData = AppCategories.getByName(tx.category);
+    final catIcon = catData.icon;
+    final catColor = catData.color;
 
     // Generate a tag based on amount
     String tag = '#routine';

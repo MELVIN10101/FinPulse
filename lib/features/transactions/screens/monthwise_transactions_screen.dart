@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/services/notification_service.dart';
+import '../../../core/constants/categories_data.dart';
 import '../../notifications/notification_screen.dart';
 
 class MonthwiseTransactionsScreen extends StatefulWidget {
@@ -126,21 +127,8 @@ class _MonthwiseTransactionsScreenState
       ][m - 1];
 
   // ── Category meta ─────────────────────────────────────────────────────
-  static const _catMeta = {
-    'Food':          {'icon': Icons.restaurant_rounded,          'color': Color(0xFFEAB308)},
-    'Shopping':      {'icon': Icons.shopping_bag_rounded,        'color': Color(0xFFFF8A34)},
-    'Transport':     {'icon': Icons.directions_car_rounded,      'color': Color(0xFF8B5CF6)},
-    'Bills':         {'icon': Icons.receipt_long_rounded,        'color': Color(0xFF3B82F6)},
-    'Entertainment': {'icon': Icons.movie_rounded,               'color': Color(0xFFEC4899)},
-    'Groceries':     {'icon': Icons.local_grocery_store_rounded, 'color': Color(0xFF22C55E)},
-    'Health':        {'icon': Icons.favorite_rounded,            'color': Color(0xFFEF4444)},
-    'Income':        {'icon': Icons.attach_money_rounded,        'color': Color(0xFF22C55E)},
-  };
-
-  IconData _iconFor(String cat) =>
-      (_catMeta[cat]?['icon'] as IconData?) ?? Icons.receipt_outlined;
-  Color _colorFor(String cat) =>
-      (_catMeta[cat]?['color'] as Color?) ?? const Color(0xFF64748B);
+  IconData _iconFor(String cat) => AppCategories.getByName(cat).icon;
+  Color _colorFor(String cat) => AppCategories.getByName(cat).color;
 
   // ── Filtering ─────────────────────────────────────────────────────────
   List<TransactionModel> get _filtered {
@@ -394,14 +382,14 @@ class _MonthwiseTransactionsScreenState
         Text("₹${_totalExpenses.toStringAsFixed(2)}",
             style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: Colors.white)),
         const SizedBox(height: 22),
-        if (expenseEntries.isEmpty)
-          const Text("No expenses this month",
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14))
-        else
-          ...expenseEntries.map((e) => Column(children: [
-                _categoryRow(e.key, e.value, false),
-                const Divider(color: Color(0xFF1E293B), height: 20),
-              ])),
+        // Display all expense categories
+        ...AppCategories.expenseCategories.map((cat) {
+          final total = _categoryTotals[cat.label] ?? 0.0;
+          return Column(children: [
+            _categoryRow(cat.label, total, false),
+            const Divider(color: Color(0xFF1E293B), height: 20),
+          ]);
+        }),
         if (_totalIncome > 0) _categoryRow('Income', _totalIncome, true),
       ]),
     );

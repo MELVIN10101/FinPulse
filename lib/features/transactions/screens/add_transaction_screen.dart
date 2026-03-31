@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../core/constants/categories_data.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -20,16 +21,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String _category = 'Food';
   bool _saving = false;
 
-  static const _categories = [
-    {'label': 'Food', 'icon': Icons.restaurant_rounded, 'color': Color(0xFFEAB308)},
-    {'label': 'Shopping', 'icon': Icons.shopping_cart_rounded, 'color': Color(0xFFFF8A34)},
-    {'label': 'Transport', 'icon': Icons.directions_car_rounded, 'color': Color(0xFF8B5CF6)},
-    {'label': 'Bills', 'icon': Icons.receipt_long_rounded, 'color': Color(0xFF3B82F6)},
-    {'label': 'Entertainment', 'icon': Icons.movie_rounded, 'color': Color(0xFFEC4899)},
-    {'label': 'Groceries', 'icon': Icons.local_grocery_store_rounded, 'color': Color(0xFF22C55E)},
-    {'label': 'Health', 'icon': Icons.favorite_rounded, 'color': Color(0xFFEF4444)},
-    {'label': 'Income', 'icon': Icons.attach_money_rounded, 'color': Color(0xFF22C55E)},
-  ];
+  final _categories = AppCategories.all;
 
   @override
   void dispose() {
@@ -155,26 +147,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             _fieldLabel('CATEGORY'),
             const SizedBox(height: 12),
             Wrap(spacing: 8, runSpacing: 10, children: _categories.map((c) {
-              final label = c['label'] as String;
-              final isSelected = _category == label;
-              final color = c['color'] as Color;
+              final isSelected = _category == c.label;
               return GestureDetector(
                 onTap: () => setState(() {
-                  _category = label;
-                  if (label == 'Income') _type = 'income';
+                  _category = c.label;
+                  if (c.label == 'Income') _type = 'income';
                 }),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? color.withOpacity(0.2) : const Color(0xFF0C1A2B),
+                    color: isSelected ? c.color.withOpacity(0.2) : const Color(0xFF0C1A2B),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isSelected ? color : Colors.white.withOpacity(0.06)),
+                    border: Border.all(color: isSelected ? c.color : Colors.white.withOpacity(0.06)),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(c['icon'] as IconData, color: isSelected ? color : const Color(0xFF64748B), size: 16),
+                    Icon(c.icon, color: isSelected ? c.color : const Color(0xFF64748B), size: 16),
                     const SizedBox(width: 6),
-                    Text(label, style: TextStyle(color: isSelected ? Colors.white : const Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text(c.label, style: TextStyle(color: isSelected ? Colors.white : const Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500)),
                   ]),
                 ),
               );
