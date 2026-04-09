@@ -6,6 +6,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../local/database_helper.dart';
 import '../models/transaction_model.dart';
 import 'sms_service.dart';
+import 'local_heuristic_service.dart';
+import 'firestore_user_service.dart';
 
 /// Manages real-time SMS listening and background-cache draining.
 ///
@@ -50,6 +52,12 @@ class NotificationService {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const initSettings = InitializationSettings(android: androidInit);
     await _notifications.initialize(initSettings);
+
+    // Explicitly request notification permissions for Android 13+
+    await _notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
   }
 
   Future<void> _requestSmsPermission() async {
@@ -69,6 +77,8 @@ class NotificationService {
         _txController.add(tx);
         await _showTransactionNotification(tx);
       }
+      // Sync cloud data after draining background transactions
+      if (added.isNotEmpty) FirestoreUserService.instance.syncNow();
       print('NotificationService: Drained ${added.length} pending transactions');
     } catch (e) {
       print('NotificationService: drainBackgroundCache error: $e');
@@ -123,6 +133,9 @@ class NotificationService {
       print('NotificationService: New live transaction saved: ${tx.merchant} ₹${tx.amount.abs()}');
       _txController.add(tx);
       await _showTransactionNotification(tx);
+      
+      // Sync cloud data even if UI is backgrounded
+      FirestoreUserService.instance.syncNow();
     } else {
       print('NotificationService: Duplicate transaction skipped');
     }
@@ -138,14 +151,18 @@ class NotificationService {
       final sign = isCredit ? '+' : '-';
       final color = isCredit ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
       final title = isCredit ? '💰 Income Detected' : '💳 Expense Detected';
-      final body = '$sign₹${tx.amount.abs().toStringAsFixed(0)} · ${tx.merchant} · ${tx.category}';
+      
+      String body = '$sign₹${tx.amount.abs().toStringAsFixed(0)} · ${tx.merchant} · ${tx.category}';
+      if (isCredit) {
+        body = LocalHeuristicService.getSarcasticCreditMessage(tx.amount.abs());
+      }
 
       final androidDetails = AndroidNotificationDetails(
         'transaction_channel',
         'Transaction Alerts',
         channelDescription: 'Auto-imported transaction notifications',
-        importance: Importance.defaultImportance,
-        priority: Priority.defaultPriority,
+        importance: Importance.max,
+        priority: Priority.high,
         color: color,
         playSound: true,
         enableVibration: true,

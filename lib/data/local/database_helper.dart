@@ -40,7 +40,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -78,6 +78,7 @@ class DatabaseHelper {
         name TEXT NOT NULL DEFAULT 'John Doe',
         email TEXT NOT NULL DEFAULT 'john@example.com',
         age TEXT DEFAULT '28',
+        gender TEXT DEFAULT '',
         handle TEXT DEFAULT '@johndoe',
         avatarUrl TEXT DEFAULT ''
       )
@@ -126,6 +127,11 @@ class DatabaseHelper {
         'CREATE UNIQUE INDEX idx_transactions_sms_id ON transactions (sms_id)',
       );
     }
+    if (oldVersion < 4) {
+      // Add gender column to user_profile for existing databases.
+      await db.execute(
+          "ALTER TABLE user_profile ADD COLUMN gender TEXT DEFAULT ''");
+    }
   }
 
   Future<void> _seedData(Database db) async {
@@ -135,6 +141,7 @@ class DatabaseHelper {
       'name': 'Alex Morgan',
       'email': 'alex.morgan@email.com',
       'age': '28',
+      'gender': '',
       'handle': '@alexmorgan',
       'avatarUrl': '',
     });
@@ -154,7 +161,7 @@ class DatabaseHelper {
     final transactions = <Map<String, dynamic>>[
       {'amount': -1500.0, 'merchant': 'Monthly Rent', 'category': 'Bills', 'type': 'expense', 'daysAgo': 0},
       {'amount': -12.50, 'merchant': 'Starbucks Coffee', 'category': 'Food', 'type': 'expense', 'daysAgo': 0},
-      {'amount': -24.50, 'merchant': 'Uber Trip', 'category': 'Transport', 'type': 'expense', 'daysAgo': 1},
+      {'amount': -24.50, 'merchant': 'Uber Trip', 'category': 'Transportation', 'type': 'expense', 'daysAgo': 1},
       {'amount': -1199.00, 'merchant': 'Electronics Hub', 'category': 'Shopping', 'type': 'expense', 'daysAgo': 1},
       {'amount': 4800.00, 'merchant': 'Salary Credit', 'category': 'Income', 'type': 'income', 'daysAgo': 1},
       {'amount': -87.40, 'merchant': 'Fresh Mart Groceries', 'category': 'Groceries', 'type': 'expense', 'daysAgo': 2},
@@ -163,7 +170,7 @@ class DatabaseHelper {
       {'amount': 2800.00, 'merchant': 'Freelance Payment', 'category': 'Income', 'type': 'income', 'daysAgo': 3},
       {'amount': -15.99, 'merchant': 'Netflix Subscription', 'category': 'Entertainment', 'type': 'expense', 'daysAgo': 4},
       {'amount': -45.00, 'merchant': 'Pizza Hut', 'category': 'Food', 'type': 'expense', 'daysAgo': 4},
-      {'amount': -32.50, 'merchant': 'Gas Station', 'category': 'Transport', 'type': 'expense', 'daysAgo': 5},
+      {'amount': -32.50, 'merchant': 'Gas Station', 'category': 'Transportation', 'type': 'expense', 'daysAgo': 5},
       {'amount': -120.00, 'merchant': 'Nike Store', 'category': 'Shopping', 'type': 'expense', 'daysAgo': 5},
       {'amount': -68.30, 'merchant': 'Whole Foods', 'category': 'Groceries', 'type': 'expense', 'daysAgo': 6},
       {'amount': -22.00, 'merchant': 'Cinema Tickets', 'category': 'Entertainment', 'type': 'expense', 'daysAgo': 7},
@@ -171,13 +178,13 @@ class DatabaseHelper {
       {'amount': -175.00, 'merchant': 'Dentist Visit', 'category': 'Health', 'type': 'expense', 'daysAgo': 8},
       {'amount': -35.00, 'merchant': 'Uber Eats', 'category': 'Food', 'type': 'expense', 'daysAgo': 9},
       {'amount': -250.00, 'merchant': 'Amazon Purchase', 'category': 'Shopping', 'type': 'expense', 'daysAgo': 10},
-      {'amount': -42.00, 'merchant': 'Lyft Ride', 'category': 'Transport', 'type': 'expense', 'daysAgo': 11},
+      {'amount': -42.00, 'merchant': 'Lyft Ride', 'category': 'Transportation', 'type': 'expense', 'daysAgo': 11},
       {'amount': -95.00, 'merchant': 'Trader Joe\'s', 'category': 'Groceries', 'type': 'expense', 'daysAgo': 12},
       {'amount': 1200.00, 'merchant': 'Side Project Income', 'category': 'Income', 'type': 'income', 'daysAgo': 14},
       {'amount': -380.00, 'merchant': 'Insurance Premium', 'category': 'Bills', 'type': 'expense', 'daysAgo': 15},
       {'amount': -65.00, 'merchant': 'Restaurant Dinner', 'category': 'Food', 'type': 'expense', 'daysAgo': 16},
       {'amount': -29.99, 'merchant': 'Spotify Premium', 'category': 'Entertainment', 'type': 'expense', 'daysAgo': 18},
-      {'amount': -18.00, 'merchant': 'Bus Pass', 'category': 'Transport', 'type': 'expense', 'daysAgo': 20},
+      {'amount': -18.00, 'merchant': 'Bus Pass', 'category': 'Transportation', 'type': 'expense', 'daysAgo': 20},
       {'amount': -450.00, 'merchant': 'Zara Clothing', 'category': 'Shopping', 'type': 'expense', 'daysAgo': 22},
       {'amount': -110.00, 'merchant': 'Costco', 'category': 'Groceries', 'type': 'expense', 'daysAgo': 24},
       {'amount': 4800.00, 'merchant': 'Salary Credit', 'category': 'Income', 'type': 'income', 'daysAgo': 28},

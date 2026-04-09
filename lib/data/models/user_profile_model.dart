@@ -2,6 +2,7 @@ class UserProfileModel {
   final String name;
   final String email;
   final String age;
+  final String gender;
   final String handle;
   final String avatarUrl;
 
@@ -9,6 +10,7 @@ class UserProfileModel {
     required this.name,
     required this.email,
     this.age = '',
+    this.gender = '',
     this.handle = '',
     this.avatarUrl = '',
   });
@@ -17,6 +19,7 @@ class UserProfileModel {
     String? name,
     String? email,
     String? age,
+    String? gender,
     String? handle,
     String? avatarUrl,
   }) {
@@ -24,6 +27,7 @@ class UserProfileModel {
       name: name ?? this.name,
       email: email ?? this.email,
       age: age ?? this.age,
+      gender: gender ?? this.gender,
       handle: handle ?? this.handle,
       avatarUrl: avatarUrl ?? this.avatarUrl,
     );
@@ -34,6 +38,7 @@ class UserProfileModel {
       'name': name,
       'email': email,
       'age': age,
+      'gender': gender,
       'handle': handle,
       'avatarUrl': avatarUrl,
     };
@@ -44,6 +49,7 @@ class UserProfileModel {
       name: map['name'] as String,
       email: map['email'] as String,
       age: (map['age'] as String?) ?? '',
+      gender: (map['gender'] as String?) ?? '',
       handle: (map['handle'] as String?) ?? '',
       avatarUrl: (map['avatarUrl'] as String?) ?? '',
     );

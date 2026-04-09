@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/local/database_helper.dart';
 import '../../data/models/transaction_model.dart';
 import '../../core/constants/categories_data.dart';
+import '../../data/services/impulse_analysis_service.dart';
+import '../../data/services/gemini_service.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -24,6 +26,8 @@ class _InsightsScreenState extends State<InsightsScreen>
   double _savingChange = 0;
   List<double> _weeklyBars = [];
   List<_DriverItem> _drivers = [];
+  String _aiInsight = '';
+  bool _aiLoading = false;
 
   // ── Spending data ─────────────────────────────
   double _totalMonthly = 0;
@@ -106,13 +110,16 @@ class _InsightsScreenState extends State<InsightsScreen>
 
     final recent = await _db.getRecentTransactions(limit: 25);
 
-    // ── Impulse Score ───────────────────────────
-    double ratio = income > 0 ? (expense / income) : 1.0;
-    double weekChange =
-        lastWeekExp > 0 ? (thisWeekExp - lastWeekExp) / lastWeekExp : 0;
-    double rawScore =
-        (100 - (ratio * 60 + weekChange.abs() * 40)).clamp(0, 100);
-    double impChange = lastWeekExp > 0 ? (-weekChange * 100) : 0;
+    // ── Impulse Score (BII Model) ─────────────────
+    final rawScore = ImpulseAnalysisService.calculateImpulseScore(
+      transactions: recent,
+      monthlyIncome: income,
+      monthlyExpense: expense,
+      lastWeekExpense: lastWeekExp,
+      thisWeekExpense: thisWeekExp,
+    );
+    
+    double impChange = lastWeekExp > 0 ? (-(thisWeekExp - lastWeekExp) / lastWeekExp * 100) : 0;
 
     // ── Saving Mindset ──────────────────────────
     double savingsRate = income > 0 ? ((income - expense) / income) : 0;
@@ -208,6 +215,22 @@ class _InsightsScreenState extends State<InsightsScreen>
       _catTotals = cats;
       _recentTx = recent;
       _loading = false;
+    });
+
+    // ── Fetch AI Insight (Async) ────────────────
+    _fetchAiInsight(recent, income);
+  }
+
+  Future<void> _fetchAiInsight(List<TransactionModel> txs, double income) async {
+    setState(() => _aiLoading = true);
+    final insight = await GeminiService.getBehavioralInsight(
+      transactions: txs,
+      monthlyIncome: income,
+    );
+    if (!mounted) return;
+    setState(() {
+      _aiInsight = insight;
+      _aiLoading = false;
     });
   }
 
@@ -1026,7 +1049,66 @@ class _InsightsScreenState extends State<InsightsScreen>
               color: Colors.white.withOpacity(0.45),
               height: 1.5),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
+
+        // ── AI Generated Insights ────────────────────
+        if (_aiInsight.isNotEmpty || _aiLoading) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF3B82F6).withOpacity(0.15),
+                  const Color(0xFF8B5CF6).withOpacity(0.15),
+                ],
+              ),
+              border:
+                  Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
+            ),
+            child: _aiLoading
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF3B82F6),
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.psychology_rounded,
+                              color: Color(0xFF3B82F6), size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            'GEMINI INSIGHT',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF3B82F6).withOpacity(0.9),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _aiInsight,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            height: 1.5,
+                            fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: 32),
+        ],
 
         // Psychology Cards
         ..._psychCards

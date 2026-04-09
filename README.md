@@ -7,13 +7,13 @@ FinPulse is an intelligent personal finance tracker that goes beyond simple budg
 FinPulse uses deterministic models to identify spending habits that reflect cognitive biases.
 
 ### 1. Impulse Score (0-100)
-The Impulse Score is a measure of spending stability and financial discipline. A higher score indicates lower impulsivity.
+The Impulse Score is a measure of financial discipline, calculated using the **Behavioral Impulsivity Index (BII)**. A higher score indicates lower impulsivity.
 
-**Formula:**
-`Score = 100 - (IncomeRatio * 60 + WeeklyVolatility * 40)`
-
-- **Income Ratio**: Calculated as `Monthly Expenses / Monthly Income`. Higher relative spending reduces the score.
-- **Weekly Volatility**: Calculated as the absolute percentage change in spending compared to the previous week (`ABS((CurrentWeek - PreviousWeek) / PreviousWeek)`). Large swings in spending indicate unpredictable/impulsive behavior.
+**BII Components:**
+- **Discretionary Spending Ratio (40%)**: The proportion of spending in high-impulse categories (Shopping, Entertainment, Dining) relative to total expenses.
+- **Temporal Risk Factor (20%)**: Analysis of spending during high-risk windows (Late Night 10 PM - 2 AM, and Early Morning routine spikes).
+- **Volatility Index (20%)**: Measures the irregularity and variance of daily spending compared to the monthly average.
+- **Income Displacement (20%)**: A sigmoid-weighted penalty for high expense-to-income ratios.
 
 ### 2. Saving Mindset
 Based on your current savings rate (`(Income - Expense) / Income`), FinPulse classifies your financial health:
@@ -34,7 +34,7 @@ FinPulse automatically categorizes transactions using a central mapping engine (
 - **🍔 Food**: Zomato, Swiggy, Starbucks, McDonald's, Restaurants, Coffee.
 - **🛍️ Shopping**: Amazon, Flipkart, Myntra, Nykaa, Lifestyle, Zara.
 - **🛒 Groceries**: BigBasket, Blinkit, Zepto, Swiggy Instamart, DMart.
-- **🚗 Transport**: Uber, Ola, Rapido, Fuel (Petrol/Diesel), Metro, IRCTC.
+- **🚗 Transportation**: Uber, Ola, Rapido, Fuel (Petrol/Diesel), Metro, IRCTC.
 - **⚡ Bills**: Airtel, Jio, Electricity, Broadband, Mobile, Recharges.
 - **🎭 Entertainment**: Netflix, Prime Video, Hotstar, Cinema, Spotify, BookMyShow.
 - **🩺 Health**: Apollo Pharmacy, Netmeds, Doctors, Clinics, Gyms.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../navigation/main_navigation_screen.dart';
 import 'auth_service.dart';
 import 'screens/login_screen.dart';
+import '../../data/services/firestore_user_service.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -17,6 +18,8 @@ class AuthWrapper extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
+          // Sync on every app open/sign-in
+          FirestoreUserService.instance.syncNow();
           return const MainNavigationScreen();
         }
         return const LoginScreen();

@@ -16,7 +16,7 @@ class AppCategories {
   static const List<CategoryData> all = [
     CategoryData(label: 'Food', icon: Icons.restaurant_rounded, color: Color(0xFFEAB308)),
     CategoryData(label: 'Shopping', icon: Icons.shopping_basket_rounded, color: Color(0xFFFF8A34)),
-    CategoryData(label: 'Transport', icon: Icons.directions_car_rounded, color: Color(0xFF8B5CF6)),
+    CategoryData(label: 'Transportation', icon: Icons.directions_car_rounded, color: Color(0xFF8B5CF6)),
     CategoryData(label: 'Bills', icon: Icons.receipt_long_rounded, color: Color(0xFF3B82F6)),
     CategoryData(label: 'Entertainment', icon: Icons.movie_rounded, color: Color(0xFFEC4899)),
     CategoryData(label: 'Groceries', icon: Icons.local_grocery_store_rounded, color: Color(0xFF22C55E)),
@@ -54,7 +54,7 @@ class AppCategories {
         'bigbasket', 'blinkit', 'zepto', 'instamart', 'dunzo', 'more retail', 'spencer', 'reliance fresh',
         'dmart', 'nature\'s basket', 'grocery', 'groceries', 'vegetables', 'milk', 'fruits', 'kirana'
       ],
-      'Transport': [
+      'Transportation': [
         'uber', 'ola', 'rapido', 'blusmart', 'indigo', 'air india', 'vistara', 'irctc', 'porter',
         'shell', 'hpcl', 'bpcl', 'iocl', 'fuel', 'petrol', 'diesel', 'toll', 'parking', 'metro', 'taxi'
       ],

@@ -119,7 +119,7 @@ class _WeekwiseTransactionsScreenState
   static const _catMeta = {
     'Food':          {'icon': Icons.restaurant_rounded,          'color': Color(0xFFEAB308)},
     'Shopping':      {'icon': Icons.shopping_bag_rounded,        'color': Color(0xFFFF8A34)},
-    'Transport':     {'icon': Icons.directions_car_rounded,      'color': Color(0xFF8B5CF6)},
+    'Transportation':     {'icon': Icons.directions_car_rounded,      'color': Color(0xFF8B5CF6)},
     'Bills':         {'icon': Icons.receipt_long_rounded,        'color': Color(0xFF3B82F6)},
     'Entertainment': {'icon': Icons.movie_rounded,               'color': Color(0xFFEC4899)},
     'Groceries':     {'icon': Icons.local_grocery_store_rounded, 'color': Color(0xFF22C55E)},

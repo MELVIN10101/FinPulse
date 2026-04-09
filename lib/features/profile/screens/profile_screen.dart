@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/user_profile_model.dart';
 import '../../../features/auth/auth_service.dart';
+import '../../../data/services/firestore_user_service.dart';
 import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -78,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         name: mergedName,
         email: mergedEmail,
         age: dbProfile.age,
+        gender: dbProfile.gender,
         handle: dbProfile.handle,
         avatarUrl: mergedAvatar,
       );
@@ -418,7 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         final txCount =
             snap.hasData ? (snap.data![0] as List).length.toString() : '—';
         final income = snap.hasData
-            ? '\$${(snap.data![1] as double).toStringAsFixed(0)}'
+            ? '₹${(snap.data![1] as double).toStringAsFixed(0)}'
             : '—';
         final goals =
             snap.hasData ? (snap.data![2] as List).length.toString() : '—';
@@ -480,6 +482,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 8),
           _detailRow(Icons.cake_rounded, 'Age / Date of Birth',
               profile.age.isNotEmpty ? profile.age : 'Not set'),
+          const SizedBox(height: 8),
+          _detailRow(Icons.wc_rounded, 'Gender',
+              profile.gender.isNotEmpty ? profile.gender : 'Not set'),
           const SizedBox(height: 8),
           _detailRow(
               Icons.alternate_email_rounded,
@@ -826,11 +831,18 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ──────────────────────────────────────────────
   //  EDIT PROFILE SHEET
   // ──────────────────────────────────────────────
+  // Gender options shared between sign-up and edit profile
+  static const _genderOptions = [
+    'Male', 'Female', 'Non-binary', 'Prefer not to say'
+  ];
+
   void _showEditProfile() {
-    final nameC = TextEditingController(text: _profile?.name ?? '');
-    final emailC = TextEditingController(text: _profile?.email ?? '');
+    final nameC   = TextEditingController(text: _profile?.name ?? '');
+    final emailC  = TextEditingController(text: _profile?.email ?? '');
     final handleC = TextEditingController(text: _profile?.handle ?? '');
-    final ageC = TextEditingController(text: _profile?.age ?? '');
+    final ageC    = TextEditingController(text: _profile?.age ?? '');
+    // Local gender state for the sheet — seeded from current profile
+    String selectedGender = _profile?.gender ?? '';
 
     showModalBottomSheet(
       context: context,
@@ -839,93 +851,185 @@ class _ProfileScreenState extends State<ProfileScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.85,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (_, scrollCtrl) => Column(
-          children: [
-            // Handle bar
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-              child: Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (_, scrollCtrl) => Column(
+            children: [
+              // Handle bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: scrollCtrl,
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  16,
-                  24,
-                  MediaQuery.of(ctx).viewInsets.bottom + 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Edit Profile',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 20),
-                    _editField('Name', nameC),
-                    const SizedBox(height: 12),
-                    _editField('Email', emailC,
-                        keyboard: TextInputType.emailAddress),
-                    const SizedBox(height: 12),
-                    _editField('Handle', handleC),
-                    const SizedBox(height: 12),
-                    _editField('Age', ageC,
-                        keyboard: TextInputType.number),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: GestureDetector(
-                        onTap: () async {
-                          final updated = UserProfileModel(
-                            name: nameC.text.trim(),
-                            email: emailC.text.trim(),
-                            handle: handleC.text.trim(),
-                            age: ageC.text.trim(),
-                            avatarUrl: _profile?.avatarUrl ?? '',
-                          );
-                          await _db.updateUserProfile(updated);
-                          if (!mounted) return;
-                          Navigator.pop(context);
-                          setState(() => _profile = updated);
-                          _showSnack('Profile updated');
-                        },
-                        child: Container(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: _accent,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text('Save Changes',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700)),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollCtrl,
+                  padding: EdgeInsets.fromLTRB(
+                    24, 16, 24,
+                    MediaQuery.of(ctx).viewInsets.bottom + 24,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Edit Profile',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 20),
+                      _editField('Name', nameC),
+                      const SizedBox(height: 12),
+                      _editField('Email', emailC,
+                          keyboard: TextInputType.emailAddress),
+                      const SizedBox(height: 12),
+                      _editField('Handle', handleC),
+                      const SizedBox(height: 12),
+                      _editField('Age', ageC,
+                          keyboard: TextInputType.number),
+                      const SizedBox(height: 16),
+
+                      // ── Gender chip selector ──────────────────────────
+                      Text('GENDER',
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF64748B),
+                              letterSpacing: 1)),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A2535),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.08)),
+                        ),
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: _genderOptions.map((option) {
+                            final selected = selectedGender == option;
+                            return GestureDetector(
+                              onTap: () => setSheetState(() {
+                                selectedGender =
+                                    selected ? '' : option;
+                              }),
+                              child: AnimatedContainer(
+                                duration:
+                                    const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? _accent
+                                      : Colors.white.withOpacity(0.06),
+                                  borderRadius:
+                                      BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: selected
+                                        ? _accent
+                                        : Colors.white
+                                            .withOpacity(0.15),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AnimatedSwitcher(
+                                      duration: const Duration(
+                                          milliseconds: 150),
+                                      child: selected
+                                          ? const Padding(
+                                              key: ValueKey('chk'),
+                                              padding: EdgeInsets.only(
+                                                  right: 5),
+                                              child: Icon(
+                                                  Icons.check_rounded,
+                                                  color: Colors.white,
+                                                  size: 13),
+                                            )
+                                          : const SizedBox.shrink(
+                                              key: ValueKey('none')),
+                                    ),
+                                    Text(
+                                      option,
+                                      style: TextStyle(
+                                        color: selected
+                                            ? Colors.white
+                                            : Colors.white
+                                                .withOpacity(0.6),
+                                        fontSize: 13,
+                                        fontWeight: selected
+                                            ? FontWeight.w600
+                                            : FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final updated = UserProfileModel(
+                              name: nameC.text.trim(),
+                              email: emailC.text.trim(),
+                              handle: handleC.text.trim(),
+                              age: ageC.text.trim(),
+                              gender: selectedGender,
+                              avatarUrl: _profile?.avatarUrl ?? '',
+                            );
+                            await _db.updateUserProfile(updated);
+                            // Trigger Firestore sync after profile change
+                            FirestoreUserService.instance.syncNow();
+                            
+                            if (!mounted) return;
+                            Navigator.pop(context);
+                            setState(() => _profile = updated);
+                            _showSnack('Profile updated');
+                          },
+                          child: Container(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: _accent,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text('Save Changes',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -67,7 +67,7 @@ class RecentTransactionsSection extends StatelessWidget {
       case 'Shopping': return {'icon': Icons.shopping_cart_rounded, 'color': const Color(0xFFFF8A34)};
       case 'Groceries': return {'icon': Icons.local_grocery_store_rounded, 'color': const Color(0xFF22C55E)};
       case 'Food': return {'icon': Icons.restaurant_rounded, 'color': const Color(0xFFEAB308)};
-      case 'Transport': return {'icon': Icons.directions_car_rounded, 'color': const Color(0xFF8B5CF6)};
+      case 'Transportation': return {'icon': Icons.directions_car_rounded, 'color': const Color(0xFF8B5CF6)};
       case 'Entertainment': return {'icon': Icons.movie_rounded, 'color': const Color(0xFFEC4899)};
       case 'Health': return {'icon': Icons.favorite_rounded, 'color': const Color(0xFFEF4444)};
       case 'Income': return {'icon': Icons.attach_money_rounded, 'color': const Color(0xFF22C55E)};

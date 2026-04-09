@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/local/database_helper.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/services/notification_service.dart';
+import '../../data/services/firestore_user_service.dart';
 import 'widgets/score_gauge.dart';
 import 'widgets/income_expense_card.dart';
 import 'widgets/spending_trend_card.dart';
@@ -55,6 +56,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final counts = await _db.getCategoryCounts(start: monthStart, end: monthEnd);
     final recent = await _db.getRecentTransactions(limit: 3);
     final trend = await _db.getWeeklySpendingTrend();
+    // Fetch all monthly transactions needed for impulse score computation.
+    final monthlyTx = await _db.getTransactionsForDateRange(monthStart, monthEnd);
 
     if (!mounted) return;
     setState(() {
@@ -66,6 +69,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _weeklyTrend = trend;
       _loading = false;
     });
+
+    // Sync user profile + scores to Firestore (mobile only, fire-and-forget).
+    // trend is [week-3, week-2, lastWeek, thisWeek]
+    FirestoreUserService.instance.syncUserScores(
+      monthlyIncome: income,
+      monthlyExpense: expense,
+      lastWeekExpense: trend.length >= 3 ? trend[trend.length - 2] : 0,
+      thisWeekExpense: trend.isNotEmpty ? trend.last : 0,
+      transactions: monthlyTx,
+    );
   }
 
   @override
