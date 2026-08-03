@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../core/privacy/privacy_manager.dart';
 
 class SpendingTrendCard extends StatefulWidget {
   final List<double> weeklyData;
@@ -114,6 +115,9 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
   }
 
   String _fmt(double v) {
+    if (PrivacyManager.instance.isPrivacyMode) {
+      return '••••';
+    }
     if (v >= 1000) { final t = (v / 1000).floor(); final r = (v % 1000).toInt(); return "$t,${r.toString().padLeft(3, '0')}"; }
     return v.toStringAsFixed(0);
   }

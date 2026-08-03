@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../data/local/database_helper.dart';
@@ -5,6 +6,7 @@ import '../../data/models/goal_model.dart';
 import '../notifications/notification_screen.dart';
 import 'add_funds_success_screen.dart';
 import 'create_goal_screen.dart';
+import '../../core/privacy/privacy_manager.dart';
 
 // ─────────────────────────────────────────────
 //  Shared Goal Model
@@ -186,9 +188,11 @@ class _GoalsScreenState extends State<GoalsScreen>
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: const Color(0xFF040B16),
-        body: SafeArea(
-          child: Column(
-            children: [
+        body: ListenableBuilder(
+          listenable: PrivacyManager.instance,
+          builder: (context, _) => SafeArea(
+            child: Column(
+              children: [
               /// ── APP BAR ───────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -276,7 +280,7 @@ class _GoalsScreenState extends State<GoalsScreen>
               ),
             ],
           ),
-        ),
+        )),
       ),
     );
   }
@@ -389,12 +393,21 @@ class _GoalsScreenState extends State<GoalsScreen>
                     height: 170,
                     width: double.infinity,
                     color: const Color(0xFF1A2535),
-                    child: Image.asset(
-                      goal.imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          _buildPlaceholderImage(goal),
-                    ),
+                    child: goal.imagePath.isEmpty
+                        ? _buildPlaceholderImage(goal)
+                        : goal.imagePath.startsWith('assets/')
+                            ? Image.asset(
+                                goal.imagePath,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildPlaceholderImage(goal),
+                              )
+                            : Image.file(
+                                File(goal.imagePath),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildPlaceholderImage(goal),
+                              ),
                   ),
                   Positioned.fill(
                     child: DecoratedBox(
@@ -449,8 +462,42 @@ class _GoalsScreenState extends State<GoalsScreen>
                             color: Colors.white,
                           ),
                         ),
-                        const Icon(Icons.more_vert_rounded,
-                            color: Color(0xFF64748B), size: 20),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert_rounded,
+                              color: Color(0xFF64748B), size: 20),
+                          color: const Color(0xFF0D1117),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _editGoal(goal);
+                            } else if (value == 'delete') {
+                              _confirmDelete(goal);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit_rounded, color: Colors.white70, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Edit Goal', style: TextStyle(color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Delete Goal', style: TextStyle(color: Color(0xFFEF4444))),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -589,12 +636,75 @@ class _GoalsScreenState extends State<GoalsScreen>
   }
 
   String _fmt(double v) {
+    if (PrivacyManager.instance.isPrivacyMode) {
+      return '••••';
+    }
     if (v >= 1000) {
       final thousands = (v / 1000).floor();
       final remainder = (v % 1000).toInt();
       return '$thousands,${remainder.toString().padLeft(3, '0')}';
     }
     return v.toStringAsFixed(0);
+  }
+
+  Future<void> _editGoal(GoalItem goal) async {
+    final updated = await Navigator.of(context).push<GoalItem>(
+      MaterialPageRoute(
+        builder: (_) => CreateGoalScreen(editGoal: goal),
+      ),
+    );
+    if (updated != null) {
+      await _db.updateGoal(GoalModel(
+        id: updated.id,
+        title: updated.title,
+        subtitle: updated.subtitle,
+        current: updated.current,
+        target: updated.target,
+        deadline: updated.deadline,
+        imagePath: updated.imagePath,
+      ));
+      _loadGoalsFromDB();
+      _showSnack('Goal details updated');
+    }
+  }
+
+  void _confirmDelete(GoalItem goal) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D1117),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Savings Goal?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text('Are you sure you want to delete "${goal.title}"? This cannot be undone.', style: const TextStyle(color: Color(0xFF94A3B8))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _db.deleteGoal(goal.id);
+              Navigator.pop(ctx);
+              _loadGoalsFromDB();
+              _showSnack('Goal "${goal.title}" deleted');
+            },
+            child: const Text('Delete', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnack(String m) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(m),
+        backgroundColor: const Color(0xFF1E293B),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 }
 
@@ -629,7 +739,7 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
     final remaining = widget.goal.target - widget.goal.current;
     if (value > remaining) {
       setState(() =>
-          _error = 'Amount exceeds remaining goal (₹${remaining.toStringAsFixed(2)})');
+          _error = 'Amount exceeds remaining goal (${PrivacyManager.formatAmount(remaining)})');
       return;
     }
     Navigator.of(context).pop(value);
@@ -638,13 +748,15 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottom),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D1117),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
+    return ListenableBuilder(
+      listenable: PrivacyManager.instance,
+      builder: (context, _) => Container(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottom),
+        decoration: const BoxDecoration(
+          color: Color(0xFF0D1117),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -813,11 +925,14 @@ class _AddFundsSheetState extends State<_AddFundsSheet> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
   String _fmt(double v) {
+    if (PrivacyManager.instance.isPrivacyMode) {
+      return '••••';
+    }
     if (v >= 1000) {
       final thousands = (v / 1000).floor();
       final remainder = (v % 1000).toInt();

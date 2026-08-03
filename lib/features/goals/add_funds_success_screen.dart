@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'goals_screen.dart';
 
@@ -180,19 +181,42 @@ class _AddFundsSuccessScreenState extends State<AddFundsSuccessScreen>
                                 child: SizedBox(
                                   width: 52,
                                   height: 52,
-                                  child: Image.asset(
-                                    widget.goal.imagePath,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) =>
-                                        Container(
-                                      color: const Color(0xFF1E293B),
-                                      child: Icon(
-                                        Icons.star_rounded,
-                                        color: Colors.white.withOpacity(0.3),
-                                        size: 24,
-                                      ),
-                                    ),
-                                  ),
+                                  child: widget.goal.imagePath.isEmpty
+                                      ? Container(
+                                          color: const Color(0xFF1E293B),
+                                          child: Icon(
+                                            Icons.star_rounded,
+                                            color: Colors.white.withOpacity(0.3),
+                                            size: 24,
+                                          ),
+                                        )
+                                      : widget.goal.imagePath.startsWith('assets/')
+                                          ? Image.asset(
+                                              widget.goal.imagePath,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
+                                                color: const Color(0xFF1E293B),
+                                                child: Icon(
+                                                  Icons.star_rounded,
+                                                  color: Colors.white.withOpacity(0.3),
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            )
+                                          : Image.file(
+                                              File(widget.goal.imagePath),
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
+                                                color: const Color(0xFF1E293B),
+                                                child: Icon(
+                                                  Icons.star_rounded,
+                                                  color: Colors.white.withOpacity(0.3),
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
                                 ),
                               ),
                               const SizedBox(width: 14),

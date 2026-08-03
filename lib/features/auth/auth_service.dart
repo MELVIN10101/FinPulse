@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'local_auth_service.dart';
 import 'firebase_auth_service.dart';
+import '../../data/services/firestore_user_service.dart';
 
 /// Unified auth user model exposed to the UI.
 class AppUser {
@@ -104,6 +105,20 @@ class AuthService {
       await LocalAuthService.instance.signOut();
     } else {
       await FirebaseAuthService.instance.signOut();
+    }
+  }
+
+  // ─── Delete Account ───────────────────────────────────────────────────
+
+  Future<void> deleteAccount() async {
+    if (_isDesktop) {
+      await LocalAuthService.instance.signOut();
+    } else {
+      final user = currentUser;
+      if (user != null) {
+        await FirestoreUserService.instance.deleteUserData(user.id);
+        await FirebaseAuthService.instance.deleteAccount();
+      }
     }
   }
 }

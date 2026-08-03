@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../local/database_helper.dart';
 import '../models/transaction_model.dart';
 import '../../core/constants/categories_data.dart';
+import 'local_ai_classifier.dart';
 
 /// Handles SMS permission, bulk historical SMS import, and real-time SMS parsing.
 class SMSService {
@@ -139,7 +140,13 @@ class SMSService {
         b.contains('rs.') ||
         b.contains('rs ') ||
         b.contains('inr') ||
-        b.contains('₹');
+        b.contains('₹') ||
+        b.contains('send kiya') ||
+        b.contains('sent kiya') ||
+        b.contains('received hua') ||
+        b.contains('recieved hua') ||
+        b.contains('credit hua') ||
+        b.contains('transfer kiya');
   }
 
   String _detectType(String body) {
@@ -148,6 +155,9 @@ class SMSService {
     if (b.contains('credited') ||
         b.contains('credit') ||
         b.contains('received') ||
+        b.contains('received hua') ||
+        b.contains('recieved hua') ||
+        b.contains('credit hua') ||
         b.contains('refund') ||
         b.contains('cashback') ||
         b.contains('salary')) {
@@ -165,8 +175,8 @@ class SMSService {
       RegExp(r'Rs\.?\s?([\d,]+(?:\.\d{1,2})?)', caseSensitive: false),
       // INR 1,234.56
       RegExp(r'INR\s?([\d,]+(?:\.\d{1,2})?)', caseSensitive: false),
-      // "debited by 500" / "credited with 2000"
-      RegExp(r'(?:debited|credited|debit|credit|spent|paid|amount)\s+(?:of\s+|by\s+|with\s+|:?\s*)?(?:Rs\.?|INR|₹)?\s?([\d,]+(?:\.\d{1,2})?)', caseSensitive: false),
+      // "debited by 500" / "credited with 2000" / Hinglish "transfer kiya 500"
+      RegExp(r'(?:debited|credited|debit|credit|spent|paid|amount|kiya|transfer|bheja)\s+(?:of\s+|by\s+|with\s+|:?\s*)?(?:Rs\.?|INR|₹)?\s?([\d,]+(?:\.\d{1,2})?)', caseSensitive: false),
       // Generic number that looks like a currency amount
       RegExp(r'\b(\d{1,8}(?:,\d{3})*(?:\.\d{1,2})?)\b'),
     ];
@@ -217,8 +227,18 @@ class SMSService {
   // ─────────────────────────────────────────────────────────────────────────
 
   String detectCategory(String merchant, String body, String type) {
-    if (type == 'Credit') return 'Income';
-    return AppCategories.detectCategory(merchant, body);
+    final detected = AppCategories.detectCategory(merchant, body);
+    if (detected != 'Other') return detected;
+
+    // Use on-device local AI classifier prediction
+    final prediction = LocalAIClassifier.instance.predict('$merchant $body');
+    if (prediction.category != 'Other' && prediction.confidence >= 0.6) {
+      return prediction.category;
+    }
+    
+    // If it's a Credit but didn't match any specific rules, return 'Other' (uncategorized)
+    // so it shows up in the uncategorized list for the user to map.
+    return 'Other';
   }
 
 

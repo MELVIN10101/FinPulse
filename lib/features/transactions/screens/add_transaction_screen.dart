@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../core/constants/categories_data.dart';
+import '../../../data/services/local_ai_classifier.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -18,10 +19,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _noteC = TextEditingController();
   DateTime _date = DateTime.now();
   String _type = 'expense'; // expense | income
-  String _category = 'Food';
+  late String _category;
   bool _saving = false;
 
-  final _categories = AppCategories.all;
+  List<CategoryData> get _categories => AppCategories.all;
+
+  @override
+  void initState() {
+    super.initState();
+    final hasFood = AppCategories.all.any((c) => c.label == 'Food');
+    _category = hasFood ? 'Food' : (AppCategories.all.isNotEmpty ? AppCategories.all.first.label : 'Other');
+  }
 
   @override
   void dispose() {
@@ -74,6 +82,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
 
     await _db.insertTransaction(tx);
+    // Retrain local AI classifier
+    final allTxs = await _db.getAllTransactions();
+    LocalAIClassifier.instance.train(allTxs);
+
     if (!mounted) return;
     Navigator.pop(context, true); // true = saved
   }

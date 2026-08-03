@@ -53,4 +53,8 @@ FinPulse automatically categorizes transactions using a central mapping engine (
 - **Choice Overload**: Decision fatigue leading to "fast" but poor financial choices.
 
 ---
+## 📄 Documentation
+- [Architecture Overview](ARCHITECTURE.md)
+- [Cloud Architecture & App Details](CLOUD_ARCHITECTURE.md)
+
 *Built with ❤️ using Flutter and SQLite.*

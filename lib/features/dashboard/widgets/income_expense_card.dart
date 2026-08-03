@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../core/privacy/privacy_manager.dart';
 
 class IncomeExpenseCard extends StatefulWidget {
   final double income;
@@ -101,6 +102,9 @@ class _IncomeExpenseCardState extends State<IncomeExpenseCard>
   }
 
   String _fmt(double v) {
+    if (PrivacyManager.instance.isPrivacyMode) {
+      return '••••';
+    }
     if (v >= 1000) {
       final thousands = (v / 1000).floor();
       final remainder = (v % 1000).toInt();

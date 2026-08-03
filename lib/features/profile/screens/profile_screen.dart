@@ -4,11 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/user_profile_model.dart';
 import '../../../features/auth/auth_service.dart';
 import '../../../data/services/firestore_user_service.dart';
 import 'settings_screen.dart';
+import 'security_settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -63,9 +66,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       }
 
-      // Merge: use auth name/email if they look like defaults
-      final mergedName = (authUser?.name.isNotEmpty == true &&
-              dbProfile.name == 'Alex Morgan')
+      // Merge: use auth name/email unconditionally if present to sync Google info
+      final mergedName = (authUser?.name.isNotEmpty == true)
           ? authUser!.name
           : dbProfile.name;
       final mergedEmail =
@@ -74,13 +76,17 @@ class _ProfileScreenState extends State<ProfileScreen>
               dbProfile.avatarUrl.isEmpty)
           ? authUser!.avatarUrl
           : dbProfile.avatarUrl;
+      final mergedHandle = (authUser != null &&
+              (dbProfile.handle == '@alexmorgan' || dbProfile.handle.isEmpty))
+          ? '@${authUser.name.toLowerCase().replaceAll(' ', '')}'
+          : dbProfile.handle;
 
       final merged = UserProfileModel(
         name: mergedName,
         email: mergedEmail,
         age: dbProfile.age,
         gender: dbProfile.gender,
-        handle: dbProfile.handle,
+        handle: mergedHandle,
         avatarUrl: mergedAvatar,
       );
 
@@ -91,7 +97,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       });
 
       // Write merged data back if changed
-      if (merged.name != dbProfile.name || merged.email != dbProfile.email) {
+      if (merged.name != dbProfile.name ||
+          merged.email != dbProfile.email ||
+          merged.handle != dbProfile.handle ||
+          merged.avatarUrl != dbProfile.avatarUrl) {
         await _db.updateUserProfile(merged);
       }
     } catch (e) {
@@ -394,10 +403,19 @@ class _ProfileScreenState extends State<ProfileScreen>
     try {
       final picked = await picker.pickImage(source: source, imageQuality: 80);
       if (picked == null) return;
-      final file = File(picked.path);
+
+      String permanentPath = picked.path;
+      try {
+        final appDir = await getApplicationDocumentsDirectory();
+        final fileName = 'avatar_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
+        final savedFile = await File(picked.path).copy(p.join(appDir.path, fileName));
+        permanentPath = savedFile.path;
+      } catch (_) {}
+
+      final file = File(permanentPath);
       setState(() => _avatarFile = file);
       // Save path to DB
-      final updated = _profile!.copyWith(avatarUrl: picked.path);
+      final updated = _profile!.copyWith(avatarUrl: permanentPath);
       await _db.updateUserProfile(updated);
       setState(() => _profile = updated);
       if (mounted) _showSnack('Profile photo updated');
@@ -557,14 +575,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           const SizedBox(height: 8),
 
-          // Security & Password → Settings (Security section)
+          // Security & Password → SecuritySettingsScreen
           _actionButton(
             icon: Icons.lock_rounded,
             label: 'Security & Password',
             onTap: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                MaterialPageRoute(builder: (_) => const SecuritySettingsScreen()),
               );
               _loadSettings();
             },
@@ -689,6 +707,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
     setState(() => _biometricEnabled = enable);
     await _db.setSetting('biometric', enable.toString());
+    AppLockState.triggerRefresh();
     if (mounted) {
       _showSnack(
           enable ? 'Biometric unlock enabled' : 'Biometric unlock disabled');

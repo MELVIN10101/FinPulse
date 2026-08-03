@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart' as p;
@@ -40,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -102,8 +103,19 @@ class DatabaseHelper {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        label TEXT NOT NULL UNIQUE,
+        icon_code INTEGER NOT NULL,
+        color_value INTEGER NOT NULL,
+        is_income INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+
     // Seed demo data
     await _seedData(db);
+    await _seedCategories(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -131,6 +143,18 @@ class DatabaseHelper {
       // Add gender column to user_profile for existing databases.
       await db.execute(
           "ALTER TABLE user_profile ADD COLUMN gender TEXT DEFAULT ''");
+    }
+    if (oldVersion < 5) {
+      await db.execute('''
+        CREATE TABLE categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          label TEXT NOT NULL UNIQUE,
+          icon_code INTEGER NOT NULL,
+          color_value INTEGER NOT NULL,
+          is_income INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
+      await _seedCategories(db);
     }
   }
 
@@ -589,5 +613,130 @@ class DatabaseHelper {
       whereArgs: [email.toLowerCase()],
     );
     return result.isNotEmpty;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // CATEGORIES & SEEDING
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Future<void> _seedCategories(Database db) async {
+    final defaultCategories = [
+      {'label': 'Food', 'icon_code': Icons.restaurant_rounded.codePoint, 'color_value': 0xFFEAB308, 'is_income': 0},
+      {'label': 'Shopping', 'icon_code': Icons.shopping_basket_rounded.codePoint, 'color_value': 0xFFFF8A34, 'is_income': 0},
+      {'label': 'Transportation', 'icon_code': Icons.directions_car_rounded.codePoint, 'color_value': 0xFF8B5CF6, 'is_income': 0},
+      {'label': 'Bills', 'icon_code': Icons.receipt_long_rounded.codePoint, 'color_value': 0xFF3B82F6, 'is_income': 0},
+      {'label': 'Entertainment', 'icon_code': Icons.movie_rounded.codePoint, 'color_value': 0xFFEC4899, 'is_income': 0},
+      {'label': 'Groceries', 'icon_code': Icons.local_grocery_store_rounded.codePoint, 'color_value': 0xFF22C55E, 'is_income': 0},
+      {'label': 'Health', 'icon_code': Icons.favorite_rounded.codePoint, 'color_value': 0xFFEF4444, 'is_income': 0},
+      {'label': 'Income', 'icon_code': Icons.attach_money_rounded.codePoint, 'color_value': 0xFF22C55E, 'is_income': 1},
+    ];
+    for (final cat in defaultCategories) {
+      await db.insert(
+        'categories',
+        cat,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllCategories() async {
+    final db = await database;
+    try {
+      return await db.query('categories', orderBy: 'is_income ASC, label ASC');
+    } catch (_) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          label TEXT NOT NULL UNIQUE,
+          icon_code INTEGER NOT NULL,
+          color_value INTEGER NOT NULL,
+          is_income INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
+      await _seedCategories(db);
+      return await db.query('categories', orderBy: 'is_income ASC, label ASC');
+    }
+  }
+
+  Future<int> insertCategory(String label, int iconCode, int colorValue, int isIncome) async {
+    final db = await database;
+    return await db.insert('categories', {
+      'label': label,
+      'icon_code': iconCode,
+      'color_value': colorValue,
+      'is_income': isIncome,
+    });
+  }
+
+  Future<void> updateCategory(int id, String oldLabel, String newLabel, int iconCode, int colorValue, int isIncome) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.update(
+        'categories',
+        {
+          'label': newLabel,
+          'icon_code': iconCode,
+          'color_value': colorValue,
+          'is_income': isIncome,
+        },
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (oldLabel != newLabel) {
+        await txn.update(
+          'transactions',
+          {'category': newLabel},
+          where: 'category = ?',
+          whereArgs: [oldLabel],
+        );
+      }
+    });
+  }
+
+  Future<void> deleteCategory(int id, String label) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        'categories',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      await txn.update(
+        'transactions',
+        {'category': 'Other'},
+        where: 'category = ?',
+        whereArgs: [label],
+      );
+    });
+  }
+
+  Future<List<TransactionModel>> getTransactionsByCategory(String category) async {
+    final db = await database;
+    final result = await db.query(
+      'transactions',
+      where: 'category = ?',
+      orderBy: 'timestamp DESC',
+    );
+    return result.map((map) => TransactionModel.fromMap(map)).toList();
+  }
+
+  Future<int> updateTransactionCategory(int id, String category) async {
+    final db = await database;
+    return await db.update(
+      'transactions',
+      {'category': category},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updateTransactionsCategoryByMerchant(String merchant, String category) async {
+    final db = await database;
+    return await db.update(
+      'transactions',
+      {'category': category},
+      where: 'merchant = ?',
+      whereArgs: [merchant],
+    );
   }
 }

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/categories_data.dart';
 import '../../../data/local/database_helper.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/services/notification_service.dart';
 import '../../notifications/notification_screen.dart';
+import '../../../core/privacy/privacy_manager.dart';
 
 class DaywiseTransactionsScreen extends StatefulWidget {
   final void Function(int)? onTabSwitch;
@@ -122,21 +124,119 @@ class _DaywiseTransactionsScreenState
   }
 
   // ── Category icon/color lookup ─────────────────────────────────────────
-  static const _catMeta = {
-    'Food':          {'icon': Icons.restaurant_rounded,          'color': Color(0xFFEAB308)},
-    'Shopping':      {'icon': Icons.shopping_bag_rounded,        'color': Color(0xFFFF8A34)},
-    'Transportation':     {'icon': Icons.directions_car_rounded,      'color': Color(0xFF8B5CF6)},
-    'Bills':         {'icon': Icons.receipt_long_rounded,        'color': Color(0xFF3B82F6)},
-    'Entertainment': {'icon': Icons.movie_rounded,               'color': Color(0xFFEC4899)},
-    'Groceries':     {'icon': Icons.local_grocery_store_rounded, 'color': Color(0xFF22C55E)},
-    'Health':        {'icon': Icons.favorite_rounded,            'color': Color(0xFFEF4444)},
-    'Income':        {'icon': Icons.attach_money_rounded,        'color': Color(0xFF22C55E)},
-  };
+  IconData _iconFor(String cat) => AppCategories.getByName(cat).icon;
+  Color _colorFor(String cat) => AppCategories.getByName(cat).color;
 
-  IconData _iconFor(String cat) =>
-      (_catMeta[cat]?['icon'] as IconData?) ?? Icons.receipt_outlined;
-  Color _colorFor(String cat) =>
-      (_catMeta[cat]?['color'] as Color?) ?? const Color(0xFF64748B);
+  void _changeCategory(BuildContext context, TransactionModel tx) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0F172A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        final categories = AppCategories.all;
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Move ${tx.merchant}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, color: Colors.white54),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "CHOOSE NEW CATEGORY",
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF64748B),
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 20),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.85,
+                ),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final cat = categories[index];
+                  final isSelected = tx.category == cat.label;
+                  return GestureDetector(
+                    onTap: () async {
+                      if (tx.id != null) {
+                        await _db.updateTransactionCategory(tx.id!, cat.label);
+                        await AppCategories.loadFromDatabase();
+                        if (context.mounted) Navigator.pop(context);
+                        _loadTransactions();
+                      }
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: isSelected ? cat.color : cat.color.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            cat.icon,
+                            color: isSelected ? Colors.black : cat.color,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          cat.label,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   // ── Filtering ──────────────────────────────────────────────────────────
   List<TransactionModel> get _filtered {
@@ -160,10 +260,12 @@ class _DaywiseTransactionsScreenState
 
     return Scaffold(
       backgroundColor: const Color(0xFF040B16),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
+      body: ListenableBuilder(
+        listenable: PrivacyManager.instance,
+        builder: (context, _) => SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
             _buildSearchBar(),
             const SizedBox(height: 20),
             _buildTabBar(),
@@ -211,7 +313,7 @@ class _DaywiseTransactionsScreenState
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -471,7 +573,7 @@ class _DaywiseTransactionsScreenState
           ),
           const SizedBox(height: 14),
           Text(
-            "${isPositive ? '+' : '-'}₹${total.abs().toStringAsFixed(2)}",
+            PrivacyManager.formatAmount(total, showSign: true, decimal: true),
             style: TextStyle(
               fontSize: 36, fontWeight: FontWeight.w700,
               color: isPositive ? const Color(0xFF22C55E) : Colors.white,
@@ -518,15 +620,29 @@ class _DaywiseTransactionsScreenState
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(
-              "${isIncome ? '+' : '-'}₹${tx.amount.abs().toStringAsFixed(2)}",
+              PrivacyManager.formatAmount(tx.amount, showSign: true, decimal: true),
               style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w700,
                 color: isIncome ? const Color(0xFF22C55E) : const Color(0xFFEF4444),
               ),
             ),
             const SizedBox(height: 5),
-            Text(cat.toUpperCase(),
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+            GestureDetector(
+              onTap: () => _changeCategory(context, tx),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: iconColor.withOpacity(0.2)),
+                ),
+                child: Text(
+                  cat.toUpperCase(),
+                  style: TextStyle(fontSize: 11, color: iconColor, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
           ]),
         ],
       ),

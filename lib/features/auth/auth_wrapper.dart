@@ -4,6 +4,8 @@ import 'auth_service.dart';
 import 'screens/login_screen.dart';
 import '../../data/services/firestore_user_service.dart';
 
+import '../profile/widgets/app_lock_wrapper.dart';
+
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -20,7 +22,9 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.hasData) {
           // Sync on every app open/sign-in
           FirestoreUserService.instance.syncNow();
-          return const MainNavigationScreen();
+          return const AppLockWrapper(
+            child: MainNavigationScreen(),
+          );
         }
         return const LoginScreen();
       },

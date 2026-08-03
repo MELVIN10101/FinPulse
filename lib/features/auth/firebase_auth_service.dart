@@ -96,6 +96,14 @@ class FirebaseAuthService {
     await GoogleSignIn.instance.signOut();
   }
 
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.delete();
+      await GoogleSignIn.instance.signOut();
+    }
+  }
+
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
   String _friendlyError(FirebaseAuthException e) {

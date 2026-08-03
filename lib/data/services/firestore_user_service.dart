@@ -122,4 +122,15 @@ class FirestoreUserService {
     final savingsRate = ((income - expense) / income).clamp(0.0, 1.0);
     return (50 + savingsRate * 50).clamp(0, 100).toInt();
   }
+
+  /// Deletes user document on account deletion.
+  Future<void> deleteUserData(String uid) async {
+    if (!_isSupported) return;
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+      print('[FirestoreUserService] deleteUserData success');
+    } catch (e) {
+      print('[FirestoreUserService] deleteUserData failed: $e');
+    }
+  }
 }

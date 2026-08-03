@@ -2,10 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'goals_screen.dart';
 
 class CreateGoalScreen extends StatefulWidget {
-  const CreateGoalScreen({super.key});
+  final GoalItem? editGoal;
+  const CreateGoalScreen({super.key, this.editGoal});
 
   @override
   State<CreateGoalScreen> createState() => _CreateGoalScreenState();
@@ -15,7 +18,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _nameController = TextEditingController();
   final _targetController = TextEditingController();
   DateTime? _deadline;
-  File? _pickedImage;
+  String _currentImagePath = '';
 
   final Map<String, String?> _errors = {
     'name': null,
@@ -24,6 +27,30 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   };
 
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editGoal != null) {
+      _nameController.text = widget.editGoal!.title;
+      _targetController.text = widget.editGoal!.target.toStringAsFixed(0);
+      _deadline = _parseDeadline(widget.editGoal!.deadline);
+      _currentImagePath = widget.editGoal!.imagePath;
+    }
+  }
+
+  DateTime? _parseDeadline(String str) {
+    final parts = str.split(' ');
+    if (parts.length != 2) return null;
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final monthIdx = months.indexOf(parts[0]);
+    final year = int.tryParse(parts[1]);
+    if (monthIdx == -1 || year == null) return null;
+    return DateTime(year, monthIdx + 1, 1);
+  }
 
   @override
   void dispose() {
@@ -61,7 +88,14 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 final img = await _picker.pickImage(
                     source: ImageSource.camera, imageQuality: 80);
                 if (img != null) {
-                  setState(() => _pickedImage = File(img.path));
+                  try {
+                    final appDir = await getApplicationDocumentsDirectory();
+                    final fileName = 'goal_${DateTime.now().millisecondsSinceEpoch}${p.extension(img.path)}';
+                    final savedFile = await File(img.path).copy(p.join(appDir.path, fileName));
+                    setState(() => _currentImagePath = savedFile.path);
+                  } catch (_) {
+                    setState(() => _currentImagePath = img.path);
+                  }
                 }
               },
             ),
@@ -73,18 +107,25 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 final img = await _picker.pickImage(
                     source: ImageSource.gallery, imageQuality: 80);
                 if (img != null) {
-                  setState(() => _pickedImage = File(img.path));
+                  try {
+                    final appDir = await getApplicationDocumentsDirectory();
+                    final fileName = 'goal_${DateTime.now().millisecondsSinceEpoch}${p.extension(img.path)}';
+                    final savedFile = await File(img.path).copy(p.join(appDir.path, fileName));
+                    setState(() => _currentImagePath = savedFile.path);
+                  } catch (_) {
+                    setState(() => _currentImagePath = img.path);
+                  }
                 }
               },
             ),
-            if (_pickedImage != null)
+            if (_currentImagePath.isNotEmpty)
               _sheetOption(
                 icon: Icons.delete_outline_rounded,
                 label: 'Remove Photo',
                 color: const Color(0xFFEF4444),
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _pickedImage = null);
+                  setState(() => _currentImagePath = '');
                 },
               ),
             const SizedBox(height: 16),
@@ -186,13 +227,13 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
     if (!_validate()) return;
 
     final goal = GoalItem(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.editGoal?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _nameController.text.trim(),
-      subtitle: '',
-      current: 0,
+      subtitle: widget.editGoal?.subtitle ?? '',
+      current: widget.editGoal?.current ?? 0,
       target: double.parse(_targetController.text.trim()),
       deadline: _formatDeadline(_deadline!),
-      imagePath: _pickedImage?.path ?? '',
+      imagePath: _currentImagePath,
     );
 
     Navigator.of(context).pop(goal);
@@ -227,11 +268,11 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                             color: Colors.white, size: 16),
                       ),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Center(
                         child: Text(
-                          'Create New Goal',
-                          style: TextStyle(
+                          widget.editGoal != null ? 'Edit Savings Goal' : 'Create New Goal',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -267,12 +308,21 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                             ),
                           ),
                           clipBehavior: Clip.hardEdge,
-                          child: _pickedImage != null
+                          child: _currentImagePath.isNotEmpty
                               ? Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                    Image.file(_pickedImage!,
-                                        fit: BoxFit.cover),
+                                    _currentImagePath.startsWith('assets/')
+                                        ? Image.asset(
+                                            _currentImagePath,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            File(_currentImagePath),
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                _buildPlaceholderContent(),
+                                          ),
                                     Positioned(
                                       bottom: 10,
                                       right: 10,
@@ -302,39 +352,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                                     ),
                                   ],
                                 )
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1E293B),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                          Icons.add_photo_alternate_rounded,
-                                          color: Colors.white,
-                                          size: 24),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      'Add Cover Photo',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    const Text(
-                                      'Optional',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF475569)),
-                                    ),
-                                  ],
-                                ),
+                              : _buildPlaceholderContent(),
                         ),
                       ),
 
@@ -453,9 +471,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                               borderRadius: BorderRadius.circular(18),
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
-                              'Create Goal',
-                              style: TextStyle(
+                            child: Text(
+                              widget.editGoal != null ? 'Save Changes' : 'Create Goal',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -531,6 +549,42 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               style: const TextStyle(
                   fontSize: 11, color: Color(0xFFEF4444))),
         ],
+      ],
+    );
+  }
+
+  Widget _buildPlaceholderContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E293B),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+              Icons.add_photo_alternate_rounded,
+              color: Colors.white,
+              size: 24),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Add Cover Photo',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Optional',
+          style: TextStyle(
+              fontSize: 12,
+              color: Color(0xFF475569)),
+        ),
       ],
     );
   }

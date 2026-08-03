@@ -6,6 +6,8 @@ import '../../data/models/transaction_model.dart';
 import '../../core/constants/categories_data.dart';
 import '../../data/services/impulse_analysis_service.dart';
 import '../../data/services/gemini_service.dart';
+import 'insights_chat_screen.dart';
+import '../../core/privacy/privacy_manager.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -249,9 +251,11 @@ class _InsightsScreenState extends State<InsightsScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFF16191C),
-      body: SafeArea(
-        child: NestedScrollView(
-          headerSliverBuilder: (ctx, inner) => [
+      body: ListenableBuilder(
+        listenable: PrivacyManager.instance,
+        builder: (context, _) => SafeArea(
+          child: NestedScrollView(
+            headerSliverBuilder: (ctx, inner) => [
             // ── Sticky Header ──
             SliverToBoxAdapter(
               child: _header()
@@ -290,7 +294,7 @@ class _InsightsScreenState extends State<InsightsScreen>
               _psychologyTab(),
             ],
           ),
-        ),
+        )),
       ),
     );
   }
@@ -682,11 +686,13 @@ class _InsightsScreenState extends State<InsightsScreen>
               const SizedBox(height: 2),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text('₹${_totalMonthly.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF3B82F6))),
+                child: Text(
+                  PrivacyManager.formatAmount(_totalMonthly, showSign: false, decimal: false),
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF3B82F6)),
+                ),
               ),
             ]),
           ],
@@ -991,7 +997,7 @@ class _InsightsScreenState extends State<InsightsScreen>
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${isIncome ? '+' : '-'}₹${tx.amount.abs().toStringAsFixed(2)}',
+                PrivacyManager.formatAmount(tx.amount, showSign: true, decimal: true),
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -1049,6 +1055,75 @@ class _InsightsScreenState extends State<InsightsScreen>
               color: Colors.white.withOpacity(0.45),
               height: 1.5),
         ),
+        const SizedBox(height: 20),
+
+        // Premium AI Chat Banner
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const InsightsChatScreen(),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3B82F6).withOpacity(0.25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Colors.white24,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.psychology_rounded,
+                      color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Chat with AI Coach',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Get personalized tips on your spending patterns.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded,
+                    color: Colors.white70, size: 20),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 24),
 
         // ── AI Generated Insights ────────────────────
@@ -1103,6 +1178,33 @@ class _InsightsScreenState extends State<InsightsScreen>
                             color: Colors.white,
                             height: 1.5,
                             fontStyle: FontStyle.italic),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const InsightsChatScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.chat_bubble_outline_rounded,
+                              color: Colors.white, size: 16),
+                          label: const Text('Chat with AI Coach',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold)),
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                const Color(0xFF3B82F6).withOpacity(0.2),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
                       ),
                     ],
                   ),
