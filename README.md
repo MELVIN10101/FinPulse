@@ -52,9 +52,61 @@ FinPulse automatically categorizes transactions using a central mapping engine (
 - **Lifestyle Creep**: The subtle expansion of spending as income grows.
 - **Choice Overload**: Decision fatigue leading to "fast" but poor financial choices.
 
+## 🚀 Getting Started: Install & Run
+
+### Prerequisites
+Ensure you have the following installed:
+- **Flutter SDK** (`^3.11.0` or later). Install guidelines [here](https://docs.flutter.dev/get-started/install).
+- **Dart SDK** (bundled automatically with Flutter).
+- **Android Studio / Xcode** (for compiling Android/iOS apps or emulators).
+- **Git** (for version control).
+
+### Step-by-Step Installation
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/MELVIN10101/FinPulse.git
+   cd FinPulse
+   ```
+
+2. **Fetch Dependencies:**
+   Run the following to download and configure all libraries:
+   ```bash
+   flutter pub get
+   ```
+
+3. **Configure Firebase (Optional for Mobile Cloud Sync):**
+   - For Android, place your `google-services.json` inside the `android/app/` folder.
+   - For iOS, place your `GoogleService-Info.plist` inside `ios/Runner/`.
+   *Note: If Firebase credentials are not supplied, the app automatically falls back to full 100% Offline Local Mode.*
+
+### Launching the Application
+
+Ensure you have a connected physical device or active emulator, then run:
+
+- **Launch in Debug Mode:**
+  ```bash
+  flutter run
+  ```
+
+- **Compile Release Bundles:**
+  - **Android APK**:
+    ```bash
+    flutter build apk --release
+    ```
+  - **Android App Bundle (for Play Store)**:
+    ```bash
+    flutter build appbundle --release
+    ```
+  - **iOS App**:
+    ```bash
+    flutter build ipa --release
+    ```
+
 ---
 ## 📄 Documentation
 - [Architecture Overview](ARCHITECTURE.md)
 - [Cloud Architecture & App Details](CLOUD_ARCHITECTURE.md)
+- [Play Store GRC Compliance Audit](.system_generated/../play_store_grc_compliance_audit.md)
 
 *Built with ❤️ using Flutter and SQLite.*
